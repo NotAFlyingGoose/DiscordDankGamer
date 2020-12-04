@@ -1,8 +1,10 @@
 package com.runningmanstudios.dankgamer.game;
 
+import com.runningmanstudios.discordlib.Bot;
 import com.runningmanstudios.discordlib.event.CommandEvent;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import org.json.simple.JSONObject;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -54,4 +56,6 @@ public abstract class GameInstance {
     public Message getLastShown() {
         return lastShown;
     }
+
+    public abstract void removePlayerData(Bot bot);
 }

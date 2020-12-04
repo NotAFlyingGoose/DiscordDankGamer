@@ -2,6 +2,6 @@ package com.runningmanstudios.discordlib.command;
 
 import com.runningmanstudios.discordlib.event.CommandEvent;
 
-public interface AttractableCommand extends Command {
+public interface AttractListener {
     void onAttract(CommandEvent event);
 }

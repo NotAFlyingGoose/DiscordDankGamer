@@ -6,17 +6,18 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AttractInfo {
+public class Attractor {
+
     private final List<Pattern> answers = new LinkedList<>();
-    private final AttractableCommand command;
+    private final AttractListener listener;
     private Instant start;
 
-    public AttractInfo(AttractableCommand command) {
-        this.command = command;
+    Attractor(AttractListener listener) {
+        this.listener = listener;
         this.start = Instant.now();
     }
 
-    public AttractInfo addAnswer(Pattern pattern) {
+    public Attractor addAnswer(Pattern pattern) {
         answers.add(pattern);
         return this;
     }
@@ -30,8 +31,8 @@ public class AttractInfo {
         return false;
     }
 
-    public AttractableCommand getCommand() {
-        return command;
+    public AttractListener getListener() {
+        return listener;
     }
 
     public Instant getStart() {

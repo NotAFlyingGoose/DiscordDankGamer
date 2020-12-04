@@ -6,8 +6,12 @@ import com.runningmanstudios.discordlib.event.CommandEvent;
 
 @CommandBuilder(name = "dungeon",
         description = "travel through the darkest depths of a really cool dungeon. you can do add the word `restart` as a parameter to restart your game",
-        usages = {"", "restart"})
+        usages = {"", "remove"})
 public class DungeonCommand extends GameCommand<Dungeon> {
+    public DungeonCommand() {
+        super("Dungeon");
+    }
+
     @Override
     public Dungeon createNewGame(CommandEvent event) {
         return new Dungeon(event.getAuthor(), event);

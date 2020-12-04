@@ -1,8 +1,9 @@
 package com.runningmanstudios.dankgamer.game;
 
-import com.runningmanstudios.dankgamer.game.fishing.FishingGame;
-import com.runningmanstudios.discordlib.command.AttractInfo;
-import com.runningmanstudios.discordlib.command.AttractableCommand;
+import com.runningmanstudios.discordlib.command.Attractor;
+import com.runningmanstudios.discordlib.command.AttractorFactory;
+import com.runningmanstudios.discordlib.command.AttractListener;
+import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.event.CommandEvent;
 
 import java.util.HashMap;
@@ -11,21 +12,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public abstract class GameCommand <T extends GameInstance> implements AttractableCommand {
+public abstract class GameCommand <T extends GameInstance> implements Command, AttractListener {
     Map<String, T> games = new HashMap<>();
     List<String> restartRequests = new LinkedList<>();
+    final String restartName;
+
+    protected GameCommand(String restartName) {
+        this.restartName = restartName;
+    }
 
     @Override
     public void onAttract(CommandEvent event) {
-        if (event.getArgs().length!=0 && event.getArg(0).equals("restart")) {
-            if (games.containsKey(event.getAuthor().getId())) {
-                games.remove(event.getAuthor().getId());
-                event.reply(FishingGame.getFullGameNameNewLine() + "Are you sure you want to restart your game, there is no reversing this? (Type `Restart Fishing (" + event.getAuthor().getId() + ")` to confirm)").queue();
-                event.getCommandManager().setAttractor(event.getAuthor(), new AttractInfo(this).addAnswer(Pattern.compile(".*")));
-                restartRequests.add(event.getAuthor().getId());
+        if (restartRequests.contains(event.getAuthor().getId())) {
+            if (event.getMessage().getContentRaw().equals("Remove " + restartName + " (" + event.getAuthor().getId() + ")")) {
+                if (games.containsKey(event.getAuthor().getId())) {
+                    games.get(event.getAuthor().getId()).removePlayerData(event.getCommandManager().getBot());
+                    games.get(event.getAuthor().getId()).stop();
+                    games.remove(event.getAuthor().getId());
+                    event.reply(getGameNameNewLine() + restartName + " data removed.").queue();
+                } else {
+                    event.reply(getGameNameNewLine() + "You have no currently loaded game. If you do have a game but haven't loaded it, then load your game first before trying to remove it.").queue();
+                }
             } else {
-                event.reply("You have no current game").queue();
+                event.reply(getGameNameNewLine() + "Remove Cancelled").queue();
             }
+            event.getCommandManager().stopAttracting(event.getAuthor());
+            restartRequests.remove(event.getAuthor().getId());
             return;
         }
 
@@ -36,7 +48,7 @@ public abstract class GameCommand <T extends GameInstance> implements Attractabl
         }
 
         if (skip) {
-            AttractInfo attract = new AttractInfo(this);
+            Attractor attract = AttractorFactory.createAttractor(this);
             for (String pattern : games.get(event.getAuthor().getId()).getNextPatterns()) {
                 attract.addAnswer(Pattern.compile(pattern));
             }
@@ -45,7 +57,7 @@ public abstract class GameCommand <T extends GameInstance> implements Attractabl
         }
 
         games.get(event.getAuthor().getId()).onResponse(event);
-        AttractInfo attract = new AttractInfo(this);
+        Attractor attract = AttractorFactory.createAttractor(this);
         for (String pattern : games.get(event.getAuthor().getId()).getNextPatterns()) {
             attract.addAnswer(Pattern.compile(pattern));
         }
@@ -54,26 +66,27 @@ public abstract class GameCommand <T extends GameInstance> implements Attractabl
 
     @Override
     public void onMessage(CommandEvent event) {
-        if (event.getArgs().length!=0 && event.getArg(0).equals("restart")) {
-            event.reply(getGameNameNewLine() + "Are you sure you want to restart your game, there is no reversing this? (Type `Restart Game ("+event.getAuthor().getId()+")` to confirm)").queue();
-            event.getCommandManager().setAttractor(event.getAuthor(), new AttractInfo(this).addAnswer(Pattern.compile(".*")));
+        if (event.getArgs().length == 1 && event.getArg(0).equals("remove")) {
+            event.reply(getGameNameNewLine() + "Are you sure you want to remove your game data? there is no reversing this. Type `"+"Remove " + restartName + " (" + event.getAuthor().getId() + ")"+"` to confirm.").queue();
+            event.getCommandManager().setAttractor(event.getAuthor(), AttractorFactory.createAnyAttractor(this));
             restartRequests.add(event.getAuthor().getId());
-            return;
-        }
+        } else if (event.getArgs().length == 0) {
+            if (!games.containsKey(event.getAuthor().getId()) || !games.get(event.getAuthor().getId()).isRunning()) {
+                event.reply(getGameNameNewLine() + "Would you like to start/continue a game? (Y/N)").queue();
+                event.getCommandManager().setAttractor(event.getAuthor(), AttractorFactory.createAttractor(this, Pattern.compile("Y")));
+                return;
+            }
 
-        if (!games.containsKey(event.getAuthor().getId()) || !games.get(event.getAuthor().getId()).isRunning()) {
-            event.reply(getGameNameNewLine() + "Would you like to start/continue a game? (Y/N)").queue();
-            event.getCommandManager().setAttractor(event.getAuthor(), new AttractInfo(this).addAnswer(Pattern.compile("Y")));
-            return;
-        }
+            event.getChannel().sendMessage(games.get(event.getAuthor().getId()).getLastShown()).queue();
+            event.reply("Please answer with one of the following: " + games.get(event.getAuthor().getId()).getNextPatterns()).queue();
+            Attractor attract = AttractorFactory.createAttractor(this);
+            for (String pattern : games.get(event.getAuthor().getId()).getNextPatterns()) {
+                attract.addAnswer(Pattern.compile(pattern));
+            }
+            event.getCommandManager().setAttractor(event.getAuthor(), attract);
+        } else {
 
-        event.getChannel().sendMessage(games.get(event.getAuthor().getId()).getLastShown()).queue();
-        event.reply("Please answer with one of the following: " + games.get(event.getAuthor().getId()).getNextPatterns()).queue();
-        AttractInfo attract = new AttractInfo(this);
-        for (String pattern : games.get(event.getAuthor().getId()).getNextPatterns()) {
-            attract.addAnswer(Pattern.compile(pattern));
         }
-        event.getCommandManager().setAttractor(event.getAuthor(), attract);
     }
 
     public abstract T createNewGame(CommandEvent event);

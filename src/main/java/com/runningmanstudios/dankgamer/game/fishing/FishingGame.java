@@ -1,6 +1,7 @@
 package com.runningmanstudios.dankgamer.game.fishing;
 
 import com.runningmanstudios.dankgamer.game.GameInstance;
+import com.runningmanstudios.discordlib.Bot;
 import com.runningmanstudios.discordlib.Util;
 import com.runningmanstudios.discordlib.data.DataBase;
 import com.runningmanstudios.discordlib.event.CommandEvent;
@@ -318,6 +319,12 @@ public class FishingGame extends GameInstance {
         }
 
         event.getCommandManager().getBot().users.writeContent();
+    }
+
+    @Override
+    public void removePlayerData(Bot bot) {
+        bot.getUserData(player).remove("dungeon");
+        bot.users.writeContent();
     }
 
     public String getWorld(int rodX, int rodY, int type) {

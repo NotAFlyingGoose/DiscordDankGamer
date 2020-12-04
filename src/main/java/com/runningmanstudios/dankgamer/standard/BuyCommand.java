@@ -1,7 +1,8 @@
 package com.runningmanstudios.dankgamer.standard;
 
-import com.runningmanstudios.discordlib.command.AttractInfo;
-import com.runningmanstudios.discordlib.command.AttractableCommand;
+import com.runningmanstudios.discordlib.command.AttractorFactory;
+import com.runningmanstudios.discordlib.command.AttractListener;
+import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
 import com.runningmanstudios.discordlib.data.DataBase;
 import com.runningmanstudios.discordlib.event.CommandEvent;
@@ -12,7 +13,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 @CommandBuilder(name = "buy", description = "buy the items", usages = {"<item id>"})
-public class BuyCommand implements AttractableCommand {
+public class BuyCommand implements Command, AttractListener {
     Map<String, String> orders = new HashMap<>();
     @Override
     public void onMessage(CommandEvent command) {
@@ -32,7 +33,7 @@ public class BuyCommand implements AttractableCommand {
         }
 
         command.reply("Are you sure you want to buy `" + items.getSection(item_id).get("name").toString() + " - " + items.getSection(item_id).get("icon").toString() + "`? Type `Y` to confirm, `N` to cancel").queue();
-        command.getCommandManager().setAttractor(command.getAuthor(), new AttractInfo(this).addAnswer(Pattern.compile(".*")));
+        command.getCommandManager().setAttractor(command.getAuthor(), AttractorFactory.createAnyAttractor(this));
         orders.put(command.getAuthor().getId(), item_id);
     }
 

@@ -15,8 +15,9 @@ import org.json.simple.parser.JSONParser;
 import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.FileReader;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 public class Bot {
     public static final int COMMON = 1;
@@ -24,7 +25,7 @@ public class Bot {
     public static final int RARE = 3;
     public static final int EPIC = 4;
     public static final int LEGENDARY = 5;
-    String dataLocation;
+    private File dataLocation;
     CommandManager commandManager;
     public DataBase users;
     public DataBase items;
@@ -32,18 +33,28 @@ public class Bot {
     public JSONObject settings;
     public JDA jda;
     private final String prefix;
+    private File traceback;
+
 
     public Bot(String dataLocation) {
-        this.dataLocation = dataLocation;
         File location = new File(System.getProperty("user.home") + dataLocation);
+        this.dataLocation = location;
         location.mkdirs();
+
+        traceback = new File(location.getAbsolutePath() + File.separator + "traceback.txt");
+        try {
+            traceback.delete();
+            traceback.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         String token;
         try {
             //JSON parser object to parse read file
             JSONParser jsonParser = new JSONParser();
 
-            FileReader reader = new FileReader(location.getAbsolutePath()+File.separator+"Settings.json");
+            FileReader reader = new FileReader(location.getAbsolutePath() + File.separator + "Settings.json");
             //Read JSON file
             Object obj = jsonParser.parse(reader);
 
@@ -51,32 +62,16 @@ public class Bot {
 
             reader.close();
         } catch (Exception e) {
-            throw new IllegalArgumentException("There was an error while trying to locate the json "+location.getAbsolutePath()+File.separator+"Settings.json");
+            throw new IllegalArgumentException("There was an error while trying to locate the json " + location.getAbsolutePath() + File.separator + "Settings.json");
         }
-        try {
-            String raw = (String) settings.get("token");
-            if (raw == null) {
-                throw new Exception();
-            }
-            token = raw;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("There was an error while trying to get the string \"token\" from the json "+location.getAbsolutePath()+File.separator+"Settings.json");
-        }
-        try {
-            String raw = (String) settings.get("prefix");
-            if (raw == null) {
-                throw new Exception();
-            }
-            this.prefix = raw;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("There was an error while trying to get the string \"prefix\" from the json "+location.getAbsolutePath()+File.separator+"Settings.json");
-        }
+        token = getSettingsString("token");
+        this.prefix = getSettingsString("prefix");
 
-        users = new DataBase(dataLocation+File.separator+"users.json");
-        items = new DataBase(dataLocation+File.separator+"items.json");
+        users = new DataBase(dataLocation + File.separator + "users.json");
+        items = new DataBase(dataLocation + File.separator + "items.json");
         items.clearContent();
         addItemData(items);
-        data = new DataBase(dataLocation+File.separator+"data.json");
+        data = new DataBase(dataLocation + File.separator + "data.json");
         data.clearContent();
         addData(data);
         data.writeContent();
@@ -87,8 +82,53 @@ public class Bot {
             jda.addEventListener(commandManager);
 
         } catch (LoginException e) {
+            System.err.println("There was an error when attempting to sign in:");
             e.printStackTrace();
+            System.exit(1);
         }
+    }
+
+    public String getSettingsString(String token) {
+        String raw;
+        try {
+            raw = (String) settings.get(token);
+            if (raw == null) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("There was an error while trying to get the string \"" + token + "\" from the json " + dataLocation.getAbsolutePath() + File.separator + "Settings.json");
+        }
+        return raw;
+    }
+
+    public int getSettingsInt(String token) {
+        Number raw;
+        try {
+            raw = ((Number) settings.get(token));
+            if (raw == null) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("There was an error while trying to get the string \"" + token + "\" from the json " + dataLocation.getAbsolutePath() + File.separator + "Settings.json");
+        }
+        return raw.intValue();
+    }
+
+    public float getSettingsFloat(String token) {
+        Number raw;
+        try {
+            raw = ((Number) settings.get(token));
+            if (raw == null) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("There was an error while trying to get the string \"" + token + "\" from the json " + dataLocation.getAbsolutePath() + File.separator + "Settings.json");
+        }
+        return raw.floatValue();
+    }
+
+    public DataBase findJSON(String s) {
+        return new DataBase(getDataLocation().getAbsolutePath() + File.separator + s);
     }
 
     public JSONObject getUserData(User user) {
@@ -101,20 +141,20 @@ public class Bot {
 
 
     public boolean doesUserHaveItem(User user, String itemId) {
-        if (users.getSection(user.getId()).get("inv")==null) {
+        if (users.getSection(user.getId()).get("inv") == null) {
             return false;
         }
         return ((JSONObject) users.getSection(user.getId()).get("inv")).containsKey(itemId);
     }
 
     public void giveUserItem(User user, String itemId, int amount) {
-        if (users.getSection(user.getId()).get("inv")==null) {
+        if (users.getSection(user.getId()).get("inv") == null) {
             users.getSection(user.getId()).put("inv", new JSONObject());
         }
 
         if (((JSONObject) users.getSection(user.getId()).get("inv")).containsKey(itemId)) {
             int amt = Integer.parseInt(((JSONObject) users.getSection(user.getId()).get("inv")).get(itemId).toString());
-            ((JSONObject) users.getSection(user.getId()).get("inv")).replace(itemId, amt+amount);
+            ((JSONObject) users.getSection(user.getId()).get("inv")).replace(itemId, amt + amount);
         } else {
             ((JSONObject) users.getSection(user.getId()).get("inv")).put(itemId, amount);
         }
@@ -122,22 +162,22 @@ public class Bot {
     }
 
     public void takeUserItem(User user, String itemId, int amount) {
-        if (users.getSection(user.getId()).get("inv")==null) {
+        if (users.getSection(user.getId()).get("inv") == null) {
             users.getSection(user.getId()).put("inv", new JSONObject());
         }
 
         if (((JSONObject) users.getSection(user.getId()).get("inv")).containsKey(itemId)) {
             int amt = Integer.parseInt(((JSONObject) users.getSection(user.getId()).get("inv")).get(itemId).toString());
-            if (amt<=amount) {
+            if (amt <= amount) {
                 ((JSONObject) users.getSection(user.getId()).get("inv")).remove(itemId);
             } else {
-                ((JSONObject) users.getSection(user.getId()).get("inv")).replace(itemId, amt-amount);
+                ((JSONObject) users.getSection(user.getId()).get("inv")).replace(itemId, amt - amount);
             }
         }
         users.writeContent();
     }
 
-    public String getDataLocation() {
+    public File getDataLocation() {
         return dataLocation;
     }
 
@@ -600,15 +640,15 @@ public class Bot {
         List<String> legendaryitems = new LinkedList<>();
         for (Object item : itemIds) {
             int r = getItemRarity(item.toString());
-            if (r == 1){
+            if (r == 1) {
                 commonitems.add(item.toString());
-            } else if (r == 2){
+            } else if (r == 2) {
                 uncommonitems.add(item.toString());
-            } else if (r == 3){
+            } else if (r == 3) {
                 rareitems.add(item.toString());
-            } else if (r == 4){
+            } else if (r == 4) {
                 epicitems.add(item.toString());
-            } else if (r == 5){
+            } else if (r == 5) {
                 legendaryitems.add(item.toString());
             }
         }
@@ -625,7 +665,7 @@ public class Bot {
     }
 
     public String ItemRarityString(String rarity) {
-        return ItemRarityName(rarity)+" "+ItemRaritySymbol(rarity);
+        return ItemRarityName(rarity) + " " + ItemRaritySymbol(rarity);
     }
 
     public String ItemRaritySymbol(String rarity) {
@@ -658,4 +698,65 @@ public class Bot {
         return this.prefix;
     }
 
+    public void writeToTraceBack(Throwable t) {
+        try {
+            FileWriter fw = new FileWriter(traceback, true);
+            Set<Throwable> dejaVu = Collections.newSetFromMap(new IdentityHashMap<>());
+            dejaVu.add(t);
+
+            fw.write(t.toString() + "\n");
+            StackTraceElement[] trace = t.getStackTrace();
+
+            // Write the stack trace
+            for (StackTraceElement traceElement : trace)
+                fw.write("\tat " + traceElement + "\n");
+
+            // Write suppressed exceptions, if any
+            for (Throwable se : t.getSuppressed())
+                writeEnclosedTraceBack(fw, se, trace, "Suppressed: ", prefix + "\t", dejaVu);
+
+            // Write cause, if any
+            Throwable ourCause = t.getCause();
+            if (ourCause != null)
+                writeEnclosedTraceBack(fw, ourCause, trace, "Caused by: ", prefix, dejaVu);
+
+            fw.write("\n");
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeEnclosedTraceBack(FileWriter traceBackWriter, Throwable t, StackTraceElement[] enclosingTrace, String caption, String prefix, Set<Throwable> dejaVu) throws IOException {
+        if (dejaVu.contains(t)) {
+            traceBackWriter.write(prefix + caption + "[CIRCULAR REFERENCE: " + this + "]\n");
+        } else {
+            dejaVu.add(t);
+            // Compute number of frames in common between this and enclosing trace
+            StackTraceElement[] trace = t.getStackTrace();
+            int m = trace.length - 1;
+            int n = enclosingTrace.length - 1;
+            while (m >= 0 && n >= 0 && trace[m].equals(enclosingTrace[n])) {
+                m--;
+                n--;
+            }
+            int framesInCommon = trace.length - 1 - m;
+
+            // Print our stack trace
+            traceBackWriter.write(prefix + caption + this + "\n");
+            for (int i = 0; i <= m; i++)
+                traceBackWriter.write(prefix + "\tat " + trace[i] + "\n");
+            if (framesInCommon != 0)
+                traceBackWriter.write(prefix + "\t... " + framesInCommon + " more\n");
+
+            // Print suppressed exceptions, if any
+            for (Throwable se : t.getSuppressed())
+                writeEnclosedTraceBack(traceBackWriter, se, trace, "Suppressed: ", prefix + "\t", dejaVu);
+
+            // Print cause, if any
+            Throwable ourCause = t.getCause();
+            if (ourCause != null)
+                writeEnclosedTraceBack(traceBackWriter, ourCause, trace, "Caused by: ", prefix, dejaVu);
+        }
+    }
 }

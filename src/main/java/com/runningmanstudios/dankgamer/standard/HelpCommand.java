@@ -24,8 +24,8 @@ public class HelpCommand implements Command {
                     .setTitle("Help Menu")
                     .setColor(new Color(255, 255, 0))
                     .setTimestamp(null);
-            embed.addField("**To see all commands:**", "type `" + event.getCommandManager().getPrefix() + "help page <number>`. replacing `<number>` with the page that you want to see.", false);
-            embed.addField("**To get more info on a specific command:**", "type `" + event.getCommandManager().getPrefix() + "help <command name>`. replacing `<command name>` with the command that you want to see.", false);
+            embed.addField("**To see all commands:**", "type `" + event.getCommandManager().getBot().getPrefix() + "help page <number>`. replacing `<number>` with the page that you want to see.", false);
+            embed.addField("**To get more info on a specific command:**", "type `" + event.getCommandManager().getBot().getPrefix() + "help <command name>`. replacing `<command name>` with the command that you want to see.", false);
             event.getChannel().sendMessage(embed.build()).queue();
             return;
         }
@@ -45,9 +45,9 @@ public class HelpCommand implements Command {
 
                 embed.addField(
                         "🎟️ - " + builder.name() + " - 🎟️",
-                        "**- Usages:** " + Util.codeArrayToString(CommandManager.getUsages(event.getCommandManager().getPrefix(), builder)), true);
+                        "**- Usages:** " + Util.codeArrayToString(CommandManager.getUsages(event.getCommandManager().getBot().getPrefix(), builder)), true);
             }
-            embed.setFooter("to see more info on a specific command do `" + event.getCommandManager().getPrefix() + "help <command name>`");
+            embed.setFooter("to see more info on a specific command do `" + event.getCommandManager().getBot().getPrefix() + "help <command name>`");
             event.getChannel().sendMessage(embed.build()).queue();
         } else {
             List<Command> commands = event.getCommandManager().getCommands();
@@ -56,7 +56,7 @@ public class HelpCommand implements Command {
 
                 if (builder.name().equals(event.getArg(0)) || Arrays.asList(builder.aliases()).contains(event.getArg(0))) {
                     String commandData = "🎟️ - " + builder.name() + " - 🎟️\n";
-                    commandData+="**Usages :** " + Util.codeArrayToString(CommandManager.getUsages(event.getCommandManager().getPrefix(), builder)) + " \n";
+                    commandData+="**Usages :** " + Util.codeArrayToString(CommandManager.getUsages(event.getCommandManager().getBot().getPrefix(), builder)) + " \n";
                     commandData+="**Description :** " + builder.description() + " \n";
                     commandData+="**Aliases :** " + Util.codeArrayToString(builder.aliases()) + " \n";
                     event.getChannel().sendMessage(commandData).queue();

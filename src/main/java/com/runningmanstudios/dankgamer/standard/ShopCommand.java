@@ -17,9 +17,9 @@ public class ShopCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle("Shopping Center")
                     .setColor(new Color(255, 0, 0))
-                    .setFooter("buy an item with `" + command.getCommandManager().getPrefix() + "buy <item id>`");
-            DataBase items = command.getCommandManager().findJSON("items.json");
-            JSONObject shop = command.getCommandManager().findJSON("data.json").getSection("shop");
+                    .setFooter("buy an item with `" + command.getCommandManager().getBot().getPrefix() + "buy <item id>`");
+            DataBase items = command.getCommandManager().getBot().items;
+            JSONObject shop = command.getCommandManager().getBot().data.getSection("shop");
             for (Object item : shop.keySet()) {
                 embed.addField(
                         items.getSection(item.toString()).get("name").toString(),

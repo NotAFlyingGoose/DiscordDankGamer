@@ -1,6 +1,7 @@
 package com.runningmanstudios.dankgamer.game.dungeon;
 
 import com.runningmanstudios.dankgamer.game.GameInstance;
+import com.runningmanstudios.discordlib.Bot;
 import com.runningmanstudios.discordlib.data.DataBase;
 import com.runningmanstudios.discordlib.event.CommandEvent;
 import net.dv8tion.jda.api.entities.User;
@@ -75,7 +76,7 @@ public class Dungeon extends GameInstance {
         nextPatterns.clear();
         JSONObject userData = event.getCommandManager().getBot().getUserData(event.getAuthor());
         JSONObject dungeonData = (JSONObject) userData.get("dungeon");
-        JSONObject monsters = event.getCommandManager().findJSON("data.json").getSection("monsters");
+        JSONObject monsters = event.getCommandManager().getBot().data.getSection("monsters");
         int mode = ((Number) dungeonData.get("mode")).intValue();
         float rank = ((Number) dungeonData.get("rank")).floatValue();
         float magic = ((Number) dungeonData.get("magic")).floatValue();
@@ -260,6 +261,12 @@ public class Dungeon extends GameInstance {
             }
         }
         event.getCommandManager().getBot().users.writeContent();
+    }
+
+    @Override
+    public void removePlayerData(Bot bot) {
+        bot.getUserData(player).remove("dungeon");
+        bot.users.writeContent();
     }
 
     public String getSays(String name, String says) {

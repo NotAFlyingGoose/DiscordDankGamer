@@ -2,10 +2,10 @@ package com.runningmanstudios.discordlib.event;
 
 import com.runningmanstudios.discordlib.Bot;
 import com.runningmanstudios.discordlib.Util;
-import com.runningmanstudios.discordlib.command.AttractInfo;
+import com.runningmanstudios.discordlib.command.Attractor;
+import com.runningmanstudios.discordlib.command.AttractorFactory;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.data.DataBase;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 
 import java.awt.*;
-import java.io.File;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -27,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class CommandManager extends ListenerAdapter {
     DecimalFormat df = new DecimalFormat("0.##");
 
-    Map<String, AttractInfo> attractors = new HashMap<>();
+    Map<String, Attractor> attractors = new HashMap<>();
 
     final String prefix;
     List<Command> commandList = new ArrayList<>();
@@ -85,13 +84,13 @@ public class CommandManager extends ListenerAdapter {
             bot.users.addSection(event.getAuthor().getId());
         }
 
-        AttractInfo attractor = attractors.get(event.getAuthor().getId());
+        Attractor attractor = attractors.get(event.getAuthor().getId());
         if (attractor!=null) {
             Instant then = attractor.getStart();
             Instant now = Instant.now();
             Duration timeElapsed = Duration.between(then, now);
-            if (attractor.textEquals(event.getMessage().getContentRaw()) && !(timeElapsed.toMinutes() > ((Number)bot.settings.get("max_attract_wait_min")).intValue())) {
-                attractor.getCommand().onAttract(new CommandEvent(event, event.getMessage().getContentRaw().split(" "), this));
+            if (attractor.textEquals(event.getMessage().getContentRaw()) && !(timeElapsed.toMinutes() > bot.getSettingsInt("max_attract_wait_min"))) {
+                attractor.getListener().onAttract(new CommandEvent(event, event.getMessage().getContentRaw().split(" "), this));
                 attractor.updateTime();
                 return;
             } else stopAttracting(event.getAuthor());
@@ -173,7 +172,8 @@ public class CommandManager extends ListenerAdapter {
                 command.onMessage(new CommandEvent(event, args, this));
             } catch (Exception e) {
                 event.getChannel().sendMessage("There was an error running the command. Remember that the correct usages for this command would be " + Util.codeArrayToString(getUsages(prefix, builder))).queue((result) -> result.delete().queueAfter(10, TimeUnit.SECONDS), Throwable::printStackTrace);
-                new File(System.getProperty("user.home") + bot.getDataLocation() + File.separator + "traceback.txt");
+                bot.writeToTraceBack(e);
+                e.printStackTrace();
             }
         }
     }
@@ -182,16 +182,8 @@ public class CommandManager extends ListenerAdapter {
         return commandList;
     }
 
-    public String getPrefix() {
-        return prefix;
-    }
-
     public Bot getBot() {
         return bot;
-    }
-
-    public DataBase findJSON(String s) {
-        return new DataBase(bot.getDataLocation()+s);
     }
 
     public static String[] getUsages(String prefix, CommandBuilder command) {
@@ -211,11 +203,11 @@ public class CommandManager extends ListenerAdapter {
         return cleanUsages;
     }
 
-    public void setAttractor(User user, AttractInfo attractor) {
+    public void setAttractor(User user, Attractor attractor) {
         this.attractors.put(user.getId(), attractor);
     }
 
-    public AttractInfo getAttractor(User user) {
+    public Attractor getAttractor(User user) {
         return this.attractors.getOrDefault(user.getId(), null);
     }
 
