@@ -1,7 +1,7 @@
 package com.runningmanstudios.dankgamer.standard;
 
-import com.runningmanstudios.discordlib.command.AttractorFactory;
 import com.runningmanstudios.discordlib.command.AttractListener;
+import com.runningmanstudios.discordlib.command.AttractorFactory;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
 import com.runningmanstudios.discordlib.data.DataBase;
@@ -10,7 +10,6 @@ import org.json.simple.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @CommandBuilder(name = "buy", description = "buy the items", usages = {"<item id>"})
 public class BuyCommand implements Command, AttractListener {
@@ -39,7 +38,6 @@ public class BuyCommand implements Command, AttractListener {
 
     @Override
     public void onAttract(CommandEvent event) {
-
         if (event.getMessage().getContentRaw().equals("Y")) {
             DataBase items = event.getCommandManager().getBot().items;
             JSONObject shop = event.getCommandManager().getBot().data.getSection("shop");

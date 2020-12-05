@@ -15,6 +15,15 @@ public class AttractorFactory {
         return new Attractor(listener).addAnswer(Pattern.compile(firstWord)).addAnswer(Pattern.compile(secondWord));
     }
 
+    public static Attractor createNumberAttractor(AttractListener listener, int min, int max) {
+        if (min > max)
+            throw new IllegalArgumentException("min is greater than max");
+        Attractor res = new Attractor(listener);
+        for (int i = min; i < max; i++)
+            res.addAnswer(Pattern.compile(String.valueOf(i)));
+        return res;
+    }
+
     public static Attractor createAnyAttractor(AttractListener listener) {
         return new Attractor(listener).addAnswer(Pattern.compile(".*"));
     }
