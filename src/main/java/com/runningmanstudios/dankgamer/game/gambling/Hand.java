@@ -1,15 +1,19 @@
-package gametests;
+package com.runningmanstudios.dankgamer.game.gambling;
 
 import java.util.*;
-import java.util.logging.Handler;
-import java.util.stream.Collectors;
 
 public class Hand {
     private Deck deck;
     private List<Card> cards = new ArrayList<>();
+    private final int max;
 
-    public Hand(Deck deck) {
+    public Hand(Deck deck, int max) {
         this.deck = deck;
+        this.max = max;
+    }
+
+    public int getMax() {
+        return max;
     }
 
     public Deck getDeck() {
@@ -23,7 +27,7 @@ public class Hand {
     public Hand collect() {
         if (!cards.isEmpty()) place();
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < max; i++)
             cards.add(i, deck.takeCard());
         return this;
     }
@@ -36,8 +40,11 @@ public class Hand {
     }
 
     public HandScore getScore() {
+        if (max != 5) {
+            throw new RuntimeException("The max must be 5 to get a score on this deck");
+        }
         List<Card> tempCards = new ArrayList<>(cards);
-        tempCards.sort(Comparator.comparingInt(a -> a.number));
+        tempCards.sort(Comparator.comparingInt(Card::getId));
 
         // detecting pairs and cards of the same suit
         Set<Suit> suits = new HashSet<>();
@@ -47,26 +54,26 @@ public class Hand {
         boolean handHasWild = false;
         int currentHighest = -1;
         for (Card card : tempCards) {
-            if (card.suit == Suit.WILD) handHasWild = true;
+            if (card.getSuit() == Suit.WILD) handHasWild = true;
 
-            if (currentHighest == -1) currentHighest = card.number;
-            else if (card.number == currentHighest + 1) currentHighest++;
-            else if (card.number > currentHighest) currentHighest = 100;
+            if (currentHighest == -1) currentHighest = card.getId();
+            else if (card.getId() == currentHighest + 1) currentHighest++;
+            else if (card.getId() > currentHighest) currentHighest = 100;
 
             suits.add(card.getSuit());
 
             for (Card compare : tempCards) {
-                if (card == compare || locked.contains(compare.number)) continue;
+                if (card == compare || locked.contains(compare.getId())) continue;
 
-                if (compare.number == card.number) {
-                    if (pairs.containsKey(card.number))
-                        pairs.put(card.number, pairs.get(card.number) + 1);
+                if (compare.getId() == card.getId()) {
+                    if (pairs.containsKey(card.getId()))
+                        pairs.put(card.getId(), pairs.get(card.getId()) + 1);
                     else
-                        pairs.put(card.number, 2);
+                        pairs.put(card.getId(), 2);
                 }
             }
 
-            locked.add(card.number);
+            locked.add(card.getId());
         }
 
         // detect if the pairs are only two of the

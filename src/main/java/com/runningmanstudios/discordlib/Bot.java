@@ -376,7 +376,7 @@ public class Bot {
         dungeonLoot.add("item_shit");
         dungeonLoot.add("item_swimsuit");
         dungeonLoot.add("item_dildo");
-        dungeonLoot.add("item_tube");
+        dungeonLoot.add("item_fleshlight");
         dungeonLoot.add("fishing_rod_basic");
         dungeonLoot.add("item_trash");
         dungeonLoot.add("item_cash");
@@ -391,7 +391,7 @@ public class Bot {
         fishingLoot.add("item_fancy_boots");
         fishingLoot.add("item_swimsuit");
         fishingLoot.add("item_dildo");
-        fishingLoot.add("item_tube");
+        fishingLoot.add("item_fleshlight");
         fishingLoot.add("fishing_rod_seen_on_tv");
         fishingLoot.add("fishing_rod_red");
         fishingLoot.add("fishing_rod_electric");
@@ -432,8 +432,8 @@ public class Bot {
                 new Data("name", "Purple Back Massager"),
                 new Data("icon", "🍆"),
                 new Data("rarity", COMMON));
-        data.addSection("item_tube",
-                new Data("name", "Cylinder With Hole on the Top"),
+        data.addSection("item_fleshlight",
+                new Data("name", "Wet Tube"),
                 new Data("icon", "🍑"),
                 new Data("rarity", COMMON));
         data.addSection("item_swimsuit",

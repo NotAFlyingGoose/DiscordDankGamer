@@ -1,11 +1,11 @@
-package gametests;
+package com.runningmanstudios.dankgamer.game.gambling;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Deck {
-    private List<Card> cards = new ArrayList<>();
+    List<Card> cards = new ArrayList<>();
 
     public static Deck createStandardDeck() {
         Deck res = new Deck();
@@ -65,8 +65,14 @@ public class Deck {
         res.cards.add(new Card(Suit.DIAMONDS, Card.QUEEN));
         res.cards.add(new Card(Suit.DIAMONDS, Card.KING));
 
-        res.cards.add(new Card(Suit.WILD, 0));
-        res.cards.add(new Card(Suit.WILD, 1));
+        return res;
+    }
+
+    public static Deck createStandardJokerDeck() {
+        Deck res = new Deck();
+
+        res.cards.add(new Card(Suit.WILD, Card.JOKER));
+        res.cards.add(new Card(Suit.WILD, Card.JOKER));
 
         return res;
     }

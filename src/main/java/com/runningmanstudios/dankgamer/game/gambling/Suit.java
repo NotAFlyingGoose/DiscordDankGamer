@@ -1,11 +1,7 @@
-package gametests;
+package com.runningmanstudios.dankgamer.game.gambling;
 
 public enum Suit {
-    CLUBS("Clubs", "♣️"),
-    HEARTS("Hearts", "♥️"),
-    SPADES("Spades", "♠️"),
-    DIAMONDS("Diamonds", "♦️"),
-    WILD("Wild", "❔");
+    CLUBS("Clubs", "♣️"), HEARTS("Hearts", "♥️"), SPADES("Spades", "♠️"), DIAMONDS("Diamonds", "♦️"), WILD("Wild", "❔");
 
     private String name;
     private String icon;

@@ -1,4 +1,4 @@
-package gametests;
+package com.runningmanstudios.dankgamer.game.gambling;
 
 public class Card {
     public static final int JOKER = 0;
@@ -7,27 +7,31 @@ public class Card {
     public static final int QUEEN = 12;
     public static final int KING = 13;
 
-    public Suit suit;
-    public int number;
+    private Suit suit;
+    private int id;
 
-    public Card(Suit suit, int number) {
+    public Card(Suit suit, int id) {
         this.suit = suit;
-        this.number = number;
+        this.id = id;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof Card card) && card.suit == this.suit && card.number == this.number;
+        return (obj instanceof Card card) && card.suit == this.suit && card.id == this.id;
     }
 
     public Suit getSuit() {
         return suit;
     }
 
-    public String toIconString() {
+    public int getId() {
+        return id;
+    }
+
+    public String getIcon() {
         if (suit == Suit.WILD) return "\uD83C\uDCCF";
 
-        return switch (number) {
+        return switch (id) {
             case 2 -> "2️⃣";
             case 3 -> "3️⃣";
             case 4 -> "4️⃣";
@@ -43,30 +47,36 @@ public class Card {
             case KING -> "\uD83D\uDC51\uD83D\uDC68";
             default -> null;
         };
+    }
 
+    public String toEmojiString() {
+        if (suit == Suit.WILD) return "\uD83C\uDCCF";
+
+        return getIcon() + " of " + suit.getIcon();
     }
 
     public String toCardString() {
         if (suit == Suit.WILD) return "Joker";
 
-        if (number > 1 && number < 11) {
-            return number + " of " + suit;
+        if (id > 1 && id < 11) {
+            return id + " of " + suit;
         }
-        else if (number == ACE) {
+        else if (id == ACE) {
             return "Ace of " + suit;
         }
-        else if (number == JACK) {
+        else if (id == JACK) {
             return "Jack of " + suit;
         }
-        else if (number == QUEEN) {
+        else if (id == QUEEN) {
             return "Queen of " + suit;
         }
-        else if (number == KING) {
+        else if (id == KING) {
             return "King of " + suit;
         }
 
         return null;
     }
+
 
     @Override
     public String toString() {
@@ -75,6 +85,6 @@ public class Card {
 
     @Override
     public Object clone() {
-        return new Card(this.suit, this.number);
+        return new Card(this.suit, this.id);
     }
 }
