@@ -2,6 +2,7 @@ package com.runningmanstudios.dankgamer.game;
 
 import com.runningmanstudios.discordlib.Bot;
 import com.runningmanstudios.discordlib.event.CommandEvent;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import org.json.simple.JSONObject;
@@ -11,11 +12,13 @@ import java.util.List;
 
 public abstract class GameInstance {
     private boolean running = false;
+    protected Guild guild;
     protected User player;
     protected List<String> nextPatterns = new LinkedList<>();
     protected Message lastShown = null;
 
-    public GameInstance(User player) {
+    public GameInstance(Guild guild, User player) {
+        this.guild = guild;
         this.player = player;
     }
 

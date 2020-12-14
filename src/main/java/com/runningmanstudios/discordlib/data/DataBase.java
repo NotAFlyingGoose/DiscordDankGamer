@@ -1,89 +1,195 @@
 package com.runningmanstudios.discordlib.data;
 
-import org.apache.commons.io.IOUtils;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.sql.*;
 
 public class DataBase {
-    protected JSONObject content;
-    private final File path;
+    public static String username;
+    public static String password;
+    public static String ipAddress;
+    private static boolean started = false;
 
-    public DataBase(String relativePath) {
-        this.path = new File(System.getProperty("user.home") + relativePath);
-        this.content = getSections();
-    }
+    public static void init() {
+        if (started) return;
+        started = true;
 
-    public void addSection(String id, Data... information) {
-        JSONObject userDetails = new JSONObject();
-        for (Data info : information) {
-            userDetails.put(info.getName(), info.getValue());
-        }
-        content.put(id, userDetails);
-    }
-
-    public JSONObject getSections()
-    {
-        //JSON parser object to parse read file
-        JSONParser jsonParser = new JSONParser();
-
-        try (FileReader reader = new FileReader(path))
-        {
-            //Read JSON file
-            Object obj = jsonParser.parse(reader);
-
-            return (JSONObject) obj;
-        } catch (ParseException | IOException e) {
-            return new JSONObject();
-        }
-    }
-
-    public JSONObject getSection(String id)
-    {
-        return (JSONObject) content.get(id);
-    }
-
-    public void writeContent() {
-        try (FileWriter file = new FileWriter(path)) {
-
-            file.write(content.toJSONString());
-            file.flush();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void clearContent() {
-        try (FileWriter file = new FileWriter(path)) {
-
-            file.write("");
-            file.flush();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean containsSection(String id) {
-        return content.containsKey(id);
-    }
-
-    public static JSONObject getFromUrl(String url) {
         try {
-            JSONParser parser = new JSONParser();
-            Object obj = parser.parse(IOUtils.toString(new URL(url), StandardCharsets.UTF_8));
-            return (JSONObject) obj;
-        } catch (ParseException | IOException e) {
-            System.err.println("There was an error while trying to get data from that url: " + e.getMessage());
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+
+            System.out.println("Connecting to SQL Server ... ");
+            try (Connection connection = createConnection()) {
+
+                try (Statement statement = connection.createStatement()) {
+                    statement.executeUpdate("""
+                            IF NOT EXISTS (
+                                    SELECT *
+                                    FROM sys.databases
+                                    WHERE name = 'DankGamer'
+                                    )
+                            BEGIN
+                                CREATE DATABASE [DankGamer]
+                            END;""");
+                }
+
+                try (Statement statement = connection.createStatement()) {
+                    statement.executeUpdate("""
+                            USE DankGamer;
+                            IF NOT EXISTS (
+                                    SELECT * 
+                                    FROM sysobjects 
+                                    WHERE NAME='Users' AND xtype='U'
+                                    )
+                            BEGIN
+                                CREATE TABLE Users (
+                                    id int IDENTITY(1,1) PRIMARY KEY,
+                                    userid varchar(8000) NOT NULL,
+                                    guildid varchar(8000) NOT NULL,
+                                    coins int, 
+                                    level int,
+                                    xp int,
+                                    inventory varchar(8000),
+                                    
+                                    game_dungeon_mode int,
+                                    game_dungeon_rank int,
+                                    game_dungeon_magic float,
+                                    game_dungeon_monster_id varchar(8000),
+                                    game_dungeon_monster_rank float,
+                                    
+                                    game_fishing_mode int,
+                                    game_fishing_rod varchar(8000),
+                                    game_fishing_location varchar(8000)
+                                );
+                            END;""");
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
         }
-        return null;
+
+        System.out.println("Loaded DataBase.");
+    }
+
+    public static void addMemberData(String guild, String user) {
+        try (Connection connection = createConnection()) {
+            String code = "USE DankGamer; INSERT Users (userid, guildid, coins, level, xp, inventory) " + "VALUES (?, ?, ?, ?, ?, ?);";
+            try (PreparedStatement statement = connection.prepareStatement(code)) {
+                statement.setString(1, user);
+                statement.setString(2, guild);
+                statement.setInt(3, 0);
+                statement.setInt(4, 1);
+                statement.setInt(5, 0);
+                statement.setString(6, ";");
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateMemberData(MemberData member) {
+        try (Connection connection = createConnection()) {
+            String code = """
+                            USE DankGamer;
+                            UPDATE Users 
+                            SET coins = ?, 
+                                level = ?, 
+                                xp = ?, 
+                                inventory = ?,
+                                
+                                game_dungeon_mode = ?,
+                                game_dungeon_rank = ?,
+                                game_dungeon_magic = ?,
+                                game_dungeon_monster_id = ?,
+                                game_dungeon_monster_rank = ?,
+                                
+                                game_fishing_mode = ?,
+                                game_fishing_rod = ?,
+                                game_fishing_location = ?
+                            WHERE userid = ? AND guildid = ?""";
+            try (PreparedStatement statement = connection.prepareStatement(code)) {
+                statement.setInt(1, member.coins);
+                statement.setInt(2, member.level);
+                statement.setInt(3, member.xp);
+                statement.setString(4, member.inventory);
+
+                statement.setInt(5, member.game_dungeon_mode);
+                statement.setInt(6, member.game_dungeon_rank);
+                statement.setFloat(7, member.game_dungeon_magic);
+                statement.setString(8, member.game_dungeon_monster_id);
+                statement.setFloat(9, member.game_dungeon_monster_rank);
+
+                statement.setInt(10, member.game_fishing_mode);
+                statement.setString(11, member.game_fishing_rod);
+                statement.setString(12, member.game_fishing_location);
+
+                statement.setString(13, member.userId);
+                statement.setString(14, member.guildId);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteMemberData(int guild, int user) {
+        try (Connection connection = createConnection()) {
+            String code = "USE DankGamer; DELETE FROM Users WHERE userid = ? AND guildid = ?;";
+            try (PreparedStatement statement = connection.prepareStatement(code)) {
+                statement.setInt(1, user);
+                statement.setInt(2, guild);
+                int rowsAffected = statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static MemberData getMemberData(String guild, String user) {
+        MemberData result = null;
+        try (Connection connection = createConnection()) {
+            String code = "USE DankGamer; SELECT * FROM Users WHERE userid = ? AND guildid = ?;";
+
+            PreparedStatement statement = connection.prepareStatement(code);
+            statement.setString(1, user);
+            statement.setString(2, guild);
+            ResultSet resultSet = statement.executeQuery();
+            boolean next = resultSet.next();
+            if (next) result = new MemberData(
+                    resultSet.getString(2), // user
+                    resultSet.getString(3), // guild
+                    resultSet.getInt(4), // coins
+                    resultSet.getInt(5), // level
+                    resultSet.getInt(6), // xp
+                    resultSet.getString(7), // inventory
+                    resultSet.getInt(8), // game_dungeon_mode
+                    resultSet.getInt(9), // game_dungeon_rank
+                    resultSet.getFloat(10), // game_dungeon_magic
+                    resultSet.getString(11), // game_dungeon_monster_id
+                    resultSet.getFloat(12), // game_dungeon_monster_rank
+                    resultSet.getInt(13), // game_fishing_mode
+                    resultSet.getString(14), // game_fishing_rod
+                    resultSet.getString(15) // game_fishing_location
+                    );
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static Connection createConnection() throws SQLException {
+        return DriverManager.getConnection("jdbc:sqlserver://"+ipAddress+";instance=MSSQLSERVER;encrypt=true;TrustServerCertificate=true;", username, password);
+    }
+
+    public static void setUsername(String username) {
+        DataBase.username = username;
+    }
+
+    public static void setPassword(String password) {
+        DataBase.password = password;
+    }
+
+    public static void setIP(String ipAddress) {
+        DataBase.ipAddress = ipAddress;
     }
 }

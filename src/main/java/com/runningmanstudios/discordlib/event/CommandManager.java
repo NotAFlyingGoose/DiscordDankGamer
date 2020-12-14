@@ -6,6 +6,8 @@ import com.runningmanstudios.discordlib.command.Attractor;
 import com.runningmanstudios.discordlib.command.AttractorFactory;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
+import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.data.MemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
@@ -80,8 +82,10 @@ public class CommandManager extends ListenerAdapter {
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
         if (event.getMember().getUser().isBot()) return;
 
-        if (!bot.users.containsSection(event.getAuthor().getId())) {
-            bot.users.addSection(event.getAuthor().getId());
+        MemberData userData = DataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId());
+        if (userData == null) {
+            DataBase.addMemberData(event.getGuild().getId(), event.getAuthor().getId());
+            userData = DataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId());
         }
 
         Attractor attractor = attractors.get(event.getAuthor().getId());
@@ -96,25 +100,15 @@ public class CommandManager extends ListenerAdapter {
             } else stopAttracting(event.getAuthor());
         }
 
-        JSONObject user = bot.users.getSection(event.getAuthor().getId());
-        if (!user.containsKey("coins")) {
-            user.put("coins", 0);
-        }
-        if (!user.containsKey("xp")) {
-            user.put("xp", 0);
-        }
-        if (!user.containsKey("level")) {
-            user.put("level", 1);
-        }
         Random roll = new Random();
 
         //coins
-        int coinAmt = roll.nextInt(15) + 1;
-        int coinBase = roll.nextInt(15) + 1;
+        int coinAmt = roll.nextInt(10) + 1;
+        int coinBase = roll.nextInt(20) + 1;
 
         if (coinAmt == coinBase) {
-            long coins = (long) user.get("coins");
-            user.replace("coins", coins + coinAmt);
+            int coins = userData.coins + coinAmt;
+            userData = userData.withCoins(coins);
             EmbedBuilder embed = new EmbedBuilder()
                     .setColor(new Color(255, 0, 0))
                     .setAuthor(event.getAuthor().getName())
@@ -124,36 +118,31 @@ public class CommandManager extends ListenerAdapter {
         }
 
         //xp
-        long xpAdd = roll.nextInt(7) + 8;
-        long curXp = ((Number) user.get("xp")).longValue();
-        long curLvl = ((Number) user.get("level")).longValue();
-        long xpToNextLvl = curLvl * 150;
+        int xpAdd = roll.nextInt(7) + 8;
+        int xpToNextLvl = userData.level * 175;
 
-        user.replace("xp", curXp + xpAdd);
-        curXp = ((Number) user.get("xp")).longValue();
-        if (xpToNextLvl <= curXp) {
-            user.replace("level", curLvl + 1);
-            user.replace("xp", xpToNextLvl - curXp);
+        userData = userData.withXP(userData.xp + xpAdd);
+        if (xpToNextLvl <= userData.xp) {
+            userData = userData.withXP(xpToNextLvl - userData.xp);
+            userData = userData.withLevel(userData.level + 1);
             EmbedBuilder embed = new EmbedBuilder()
                     .setColor(new Color(0, 255, 0))
                     .setTitle(event.getAuthor().getName() + " Leveled Up!")
-                    .addField("\uD83D\uDD3C", curLvl + 1 + "", true)
+                    .addField("\uD83D\uDD3C", userData.level + 1 + "", true)
                     .setFooter("do `" + prefix + " level` to see your xp");
             event.getChannel().sendMessage(embed.build()).queue((result) -> result.delete().queueAfter(5, TimeUnit.SECONDS), Throwable::printStackTrace);
         }
 
         //magic
-        if (user.get("dungeon")!=null) {
+/*        if (user.get("dungeon")!=null) {
             float magicAdd = (roll.nextInt(7) + 8)/100f;
             JSONObject dungeon = (JSONObject) user.get("dungeon");
             float curMagic = ((Number) dungeon.get("magic")).floatValue();
 
             dungeon.replace("magic", Float.valueOf(df.format(curMagic + magicAdd)));
-        }
+        }*/
 
-
-        //write the users to
-        bot.users.writeContent();
+        DataBase.updateMemberData(userData);
 
         String messageContent = event.getMessage().getContentRaw();
         if (!messageContent.startsWith(prefix)) return;
@@ -173,7 +162,6 @@ public class CommandManager extends ListenerAdapter {
             } catch (Exception e) {
                 event.getChannel().sendMessage("There was an error running the command. Remember that the correct usages for this command would be " + Util.codeArrayToString(getUsages(prefix, builder))).queue((result) -> result.delete().queueAfter(10, TimeUnit.SECONDS), Throwable::printStackTrace);
                 bot.writeToTraceBack(e);
-                e.printStackTrace();
             }
         }
     }

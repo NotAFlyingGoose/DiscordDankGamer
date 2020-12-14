@@ -2,6 +2,8 @@ package com.runningmanstudios.dankgamer.standard;
 
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
+import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.data.MemberData;
 import com.runningmanstudios.discordlib.event.CommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -22,7 +24,7 @@ public class BankCommand implements Command {
                         .setAuthor("Bank Account")
                         .setTitle(message.getAuthor().getName()+"'s Bank Account")
                         .setThumbnail(message.getAuthor().getAvatarUrl())
-                        .addField("\uD83D\uDCB8", message.getCommandManager().getBot().users.getSection(message.getAuthor().getId()).get("coins").toString(), true);
+                        .addField("\uD83D\uDCB8", String.valueOf(message.getMemberData().coins), true);
                 // failure is always a Throwable
                 message.getChannel().sendMessage(embed.build()).queue();
             } else {
@@ -31,7 +33,7 @@ public class BankCommand implements Command {
                         .setColor(new Color(255, 0, 0))
                         .setAuthor("Bank Account")
                         .setTitle(message.getAuthor().getName()+"'s Bank Account")
-                        .addField("\uD83D\uDCB8", message.getCommandManager().getBot().users.getSection(member.getUser().getId()).get("coins").toString(), true);
+                        .addField("\uD83D\uDCB8", String.valueOf(message.getMemberData().coins), true);
                 message.getChannel().sendMessage(embed.build()).queue();
             }
         } catch (NullPointerException e) {

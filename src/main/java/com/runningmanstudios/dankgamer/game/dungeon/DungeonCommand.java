@@ -14,7 +14,7 @@ public class DungeonCommand extends GameCommand<Dungeon> {
 
     @Override
     public Dungeon createNewGame(CommandEvent event) {
-        return new Dungeon(event.getAuthor(), event);
+        return new Dungeon(event.getGuild(), event.getAuthor(), event);
     }
 
     @Override

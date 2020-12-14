@@ -1,5 +1,7 @@
 package com.runningmanstudios.discordlib.event;
 
+import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.data.MemberData;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -23,10 +25,6 @@ public class CommandEvent extends GuildMessageReceivedEvent {
         this.commandManager = commandManager;
     }
 
-    public JSONObject getAuthorData() {
-        return commandManager.getBot().getUserData(getAuthor().getId());
-    }
-
     public String[] getArgs() {
         return args;
     }
@@ -39,14 +37,14 @@ public class CommandEvent extends GuildMessageReceivedEvent {
     @CheckReturnValue
     public MessageAction reply(@Nonnull CharSequence message)
     {
-        return getChannel().sendMessage(createMention(getAuthor()) + ", " + message);
+        return getChannel().sendMessage(getAuthor().getAsMention() + ", " + message);
     }
 
     @Nonnull
     @CheckReturnValue
     public MessageAction reply(@Nonnull Message message)
     {
-        return getChannel().sendMessage(createMention(getAuthor()) + ", " + message.getContentRaw());
+        return getChannel().sendMessage(getAuthor().getAsMention() + ", " + message.getContentRaw());
     }
 
     public MessageAction sendImage(@Nonnull BufferedImage img, String name) {
@@ -61,8 +59,8 @@ public class CommandEvent extends GuildMessageReceivedEvent {
         }
     }
 
-    public static String createMention(User user) {
-        return "<@!"+user.getId()+">";
+    public MemberData getMemberData() {
+        return DataBase.getMemberData(getGuild().getId(), getAuthor().getId());
     }
 
     public CommandManager getCommandManager() {

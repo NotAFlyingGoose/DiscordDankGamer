@@ -1,5 +1,6 @@
 package com.runningmanstudios.dankgamer.game.dungeon;
 
+import com.runningmanstudios.discordlib.data.MemberData;
 import com.runningmanstudios.discordlib.event.CommandManager;
 import net.dv8tion.jda.api.entities.User;
 import org.json.simple.JSONObject;
@@ -26,9 +27,7 @@ public class DungeonFighter {
         return magic;
     }
 
-    public static DungeonFighter createFromUser(User user, CommandManager commandManager) {
-        JSONObject userData = commandManager.getBot().getUserData(user);
-        JSONObject dungeonData = (JSONObject) userData.get("dungeon");
-        return new DungeonFighter(user.getName(), ((Number)dungeonData.get("rank")).floatValue(), ((Number)dungeonData.get("magic")).floatValue());
+    public static DungeonFighter createFromUser(MemberData userData, User user) {
+        return new DungeonFighter(user.getName(), userData.game_dungeon_rank, userData.game_dungeon_magic);
     }
 }

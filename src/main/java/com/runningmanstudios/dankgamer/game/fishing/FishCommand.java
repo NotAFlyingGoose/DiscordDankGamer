@@ -12,7 +12,7 @@ public class FishCommand extends GameCommand<FishingGame> {
 
     @Override
     public FishingGame createNewGame(CommandEvent event) {
-        return new FishingGame(event.getAuthor(), event);
+        return new FishingGame(event.getGuild(), event.getAuthor(), event);
     }
 
     @Override

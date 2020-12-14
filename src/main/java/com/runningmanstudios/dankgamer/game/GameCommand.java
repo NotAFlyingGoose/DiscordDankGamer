@@ -72,7 +72,7 @@ public abstract class GameCommand <T extends GameInstance> implements Command, A
             restartRequests.add(event.getAuthor().getId());
         } else if (event.getArgs().length == 0) {
             if (!games.containsKey(event.getAuthor().getId()) || !games.get(event.getAuthor().getId()).isRunning()) {
-                event.reply(getGameNameNewLine() + "Would you like to start/continue a game? (Y/N)").queue();
+                event.reply(getGameNameNewLine() + "Would you like to start/load a game? (Y/N)").queue();
                 event.getCommandManager().setAttractor(event.getAuthor(), AttractorFactory.createAttractor(this, Pattern.compile("Y")));
                 return;
             }
@@ -85,7 +85,7 @@ public abstract class GameCommand <T extends GameInstance> implements Command, A
             }
             event.getCommandManager().setAttractor(event.getAuthor(), attract);
         } else {
-
+            throw new RuntimeException("User " + event.getAuthor().toString() + " typed too many arguments.");
         }
     }
 
