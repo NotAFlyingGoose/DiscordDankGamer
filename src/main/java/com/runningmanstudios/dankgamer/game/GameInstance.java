@@ -1,11 +1,10 @@
 package com.runningmanstudios.dankgamer.game;
 
 import com.runningmanstudios.discordlib.Bot;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import org.json.simple.JSONObject;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +37,7 @@ public abstract class GameInstance {
         return ":video_game:";
     }*/
 
-    public abstract void onResponse(CommandEvent event);
+    public abstract void onResponse(BotMessageEvent event);
 
     public boolean isRunning() {
         return running;

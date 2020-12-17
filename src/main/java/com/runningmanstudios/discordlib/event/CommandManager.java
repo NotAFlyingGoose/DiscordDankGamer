@@ -3,7 +3,6 @@ package com.runningmanstudios.discordlib.event;
 import com.runningmanstudios.discordlib.Bot;
 import com.runningmanstudios.discordlib.Util;
 import com.runningmanstudios.discordlib.command.Attractor;
-import com.runningmanstudios.discordlib.command.AttractorFactory;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
 import com.runningmanstudios.discordlib.data.DataBase;
@@ -94,7 +93,7 @@ public class CommandManager extends ListenerAdapter {
             Instant now = Instant.now();
             Duration timeElapsed = Duration.between(then, now);
             if (attractor.textEquals(event.getMessage().getContentRaw()) && !(timeElapsed.toMinutes() > bot.getSettingsInt("max_attract_wait_min"))) {
-                attractor.getListener().onAttract(new CommandEvent(event, event.getMessage().getContentRaw().split(" "), this));
+                attractor.getListener().onAttract(new BotMessageEvent(event, event.getMessage().getContentRaw().split(" "), this));
                 attractor.updateTime();
                 return;
             } else stopAttracting(event.getAuthor());
@@ -112,7 +111,7 @@ public class CommandManager extends ListenerAdapter {
             EmbedBuilder embed = new EmbedBuilder()
                     .setColor(new Color(255, 0, 0))
                     .setAuthor(event.getAuthor().getName())
-                    .addField("\uD83D\uDCB8", coinAmt + " coins added!", true)
+                    .addField("🪙", coinAmt + " coins added!", true)
                     .setFooter("do `" + prefix + " bank` to see your balance");
             event.getChannel().sendMessage(embed.build()).queue((result) -> result.delete().queueAfter(3, TimeUnit.SECONDS), Throwable::printStackTrace);
         }
@@ -145,7 +144,7 @@ public class CommandManager extends ListenerAdapter {
         DataBase.updateMemberData(userData);
 
         String messageContent = event.getMessage().getContentRaw();
-        if (!messageContent.startsWith(prefix)) return;
+        if (messageContent.length() < prefix.length() || !messageContent.substring(0, prefix.length()).equalsIgnoreCase(prefix)) return;
 
         messageContent = messageContent.substring(prefix.length());
 
@@ -155,10 +154,18 @@ public class CommandManager extends ListenerAdapter {
 
         for (Command command : commandList) {
             CommandBuilder builder = command.getClass().getAnnotation(CommandBuilder.class);
-            if (!builder.name().equals(commandName) && !Arrays.asList(builder.aliases()).contains(commandName)) continue;
+            boolean nameMatch = false;
+            if (builder.name().equalsIgnoreCase(commandName)) nameMatch = true;
+            for (String alias : builder.aliases()) {
+                if (alias.equalsIgnoreCase(commandName)) {
+                    nameMatch = true;
+                    break;
+                }
+            }
+            if (!nameMatch) continue;
 
             try {
-                command.onMessage(new CommandEvent(event, args, this));
+                command.onMessage(new BotMessageEvent(event, args, this));
             } catch (Exception e) {
                 event.getChannel().sendMessage("There was an error running the command. Remember that the correct usages for this command would be " + Util.codeArrayToString(getUsages(prefix, builder))).queue((result) -> result.delete().queueAfter(10, TimeUnit.SECONDS), Throwable::printStackTrace);
                 bot.writeToTraceBack(e);

@@ -1,4 +1,4 @@
-package com.runningmanstudios.dankgamer.game.gambling;
+package com.runningmanstudios.dankgamer.game.gambling.cards;
 
 public enum Suit {
     CLUBS("Clubs", "♣️"), HEARTS("Hearts", "♥️"), SPADES("Spades", "♠️"), DIAMONDS("Diamonds", "♦️"), WILD("Wild", "❔");

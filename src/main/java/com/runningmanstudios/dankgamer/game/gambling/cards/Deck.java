@@ -1,4 +1,4 @@
-package com.runningmanstudios.dankgamer.game.gambling;
+package com.runningmanstudios.dankgamer.game.gambling.cards;
 
 import java.util.ArrayList;
 import java.util.Collections;

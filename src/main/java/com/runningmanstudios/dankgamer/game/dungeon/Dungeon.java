@@ -4,7 +4,7 @@ import com.runningmanstudios.dankgamer.game.GameInstance;
 import com.runningmanstudios.discordlib.Bot;
 import com.runningmanstudios.discordlib.data.DataBase;
 import com.runningmanstudios.discordlib.data.MemberData;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import org.json.simple.JSONArray;
@@ -19,7 +19,7 @@ public class Dungeon extends GameInstance {
     private final static String gameEmoji = ":european_castle:";
     private static final int MODE_TO_RESET = 100;
 
-    public Dungeon(Guild guild, User player, CommandEvent event) {
+    public Dungeon(Guild guild, User player, BotMessageEvent event) {
         super(guild, player);
 
         nextPatterns.add("continue");
@@ -57,7 +57,7 @@ public class Dungeon extends GameInstance {
         event.getChannel().sendMessage(getFullGameNameNewLine() + menu).queue(message -> lastShown = message);
     }
 
-    public void onResponse(CommandEvent event) {
+    public void onResponse(BotMessageEvent event) {
         nextPatterns.clear();
         MemberData userData = event.getMemberData();
         JSONObject monsters = (JSONObject) event.getCommandManager().getBot().data.get("monsters");

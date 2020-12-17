@@ -15,11 +15,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class CommandEvent extends GuildMessageReceivedEvent {
+public class BotMessageEvent extends GuildMessageReceivedEvent {
     String[] args;
     CommandManager commandManager;
 
-    public CommandEvent(GuildMessageReceivedEvent message, String[] args, CommandManager commandManager) {
+    public BotMessageEvent(GuildMessageReceivedEvent message, String[] args, CommandManager commandManager) {
         super(message.getJDA(), message.getResponseNumber(), message.getMessage());
         this.args = args;
         this.commandManager = commandManager;

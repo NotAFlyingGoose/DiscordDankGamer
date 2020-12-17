@@ -7,7 +7,7 @@ import com.runningmanstudios.discordlib.data.DataBase;
 import com.runningmanstudios.discordlib.data.Inventory;
 import com.runningmanstudios.discordlib.data.Item;
 import com.runningmanstudios.discordlib.data.MemberData;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -38,7 +38,7 @@ public class FishingGame extends GameInstance {
     private final Random r = new Random();
     private int rodX = 3, rodY = -1;
 
-    public FishingGame(Guild guild, User player, CommandEvent event) {
+    public FishingGame(Guild guild, User player, BotMessageEvent event) {
         super(guild, player);
 
         nextPatterns.add("continue");
@@ -79,7 +79,7 @@ public class FishingGame extends GameInstance {
     }
 
     @Override
-    public void onResponse(CommandEvent event) {
+    public void onResponse(BotMessageEvent event) {
         nextPatterns.clear();
         final MemberData[] userData = {event.getMemberData()};
         AtomicInteger mode = new AtomicInteger(userData[0].game_fishing_mode);

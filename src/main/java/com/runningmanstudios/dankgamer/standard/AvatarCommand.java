@@ -2,7 +2,7 @@ package com.runningmanstudios.dankgamer.standard;
 
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -19,7 +19,7 @@ public class AvatarCommand implements Command {
     Random r = new Random();
 
     @Override
-    public void onMessage(CommandEvent event) {
+    public void onMessage(BotMessageEvent event) {
         List<Member> members = event.getMessage().getMentionedMembers();
         if (members.isEmpty()) {
             /*EmbedBuilder embed = new EmbedBuilder()

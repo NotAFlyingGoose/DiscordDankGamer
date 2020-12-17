@@ -4,7 +4,7 @@ import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
 import com.runningmanstudios.discordlib.data.DataBase;
 import com.runningmanstudios.discordlib.data.MemberData;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @CommandBuilder(name = "level", description = "level command", usages = {"", "<user>"})
 public class LevelCommand implements Command {
     @Override
-    public void onMessage(CommandEvent message) {
+    public void onMessage(BotMessageEvent message) {
         try {
             List<Member> members = message.getMessage().getMentionedMembers();
             if (members.isEmpty()) {

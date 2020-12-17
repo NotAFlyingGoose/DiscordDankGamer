@@ -4,7 +4,7 @@ import com.runningmanstudios.discordlib.command.Attractor;
 import com.runningmanstudios.discordlib.command.AttractorFactory;
 import com.runningmanstudios.discordlib.command.AttractListener;
 import com.runningmanstudios.discordlib.command.Command;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,7 +22,7 @@ public abstract class GameCommand <T extends GameInstance> implements Command, A
     }
 
     @Override
-    public void onAttract(CommandEvent event) {
+    public void onAttract(BotMessageEvent event) {
         if (restartRequests.contains(event.getAuthor().getId())) {
             if (event.getMessage().getContentRaw().equals("Remove " + restartName + " (" + event.getAuthor().getId() + ")")) {
                 if (games.containsKey(event.getAuthor().getId())) {
@@ -65,7 +65,7 @@ public abstract class GameCommand <T extends GameInstance> implements Command, A
     }
 
     @Override
-    public void onMessage(CommandEvent event) {
+    public void onMessage(BotMessageEvent event) {
         if (event.getArgs().length == 1 && event.getArg(0).equals("remove")) {
             event.reply(getGameNameNewLine() + "Are you sure you want to remove your game data? there is no reversing this. Type `"+"Remove " + restartName + " (" + event.getAuthor().getId() + ")"+"` to confirm.").queue();
             event.getCommandManager().setAttractor(event.getAuthor(), AttractorFactory.createAnyAttractor(this));
@@ -89,7 +89,7 @@ public abstract class GameCommand <T extends GameInstance> implements Command, A
         }
     }
 
-    public abstract T createNewGame(CommandEvent event);
+    public abstract T createNewGame(BotMessageEvent event);
 
     public abstract String getGameNameNewLine();
 }

@@ -2,11 +2,10 @@ package com.runningmanstudios.dankgamer.standard;
 
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.data.DataBase;
 import com.runningmanstudios.discordlib.data.Inventory;
 import com.runningmanstudios.discordlib.data.Item;
 import com.runningmanstudios.discordlib.data.MemberData;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.simple.JSONObject;
 
@@ -15,7 +14,7 @@ import java.awt.*;
 @CommandBuilder(name = "inv", description = "see your inventory")
 public class InvCommand implements Command {
     @Override
-    public void onMessage(CommandEvent command) {
+    public void onMessage(BotMessageEvent command) {
         try {
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle(command.getAuthor().getName())

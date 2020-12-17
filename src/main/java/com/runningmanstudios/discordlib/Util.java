@@ -1,12 +1,57 @@
 package com.runningmanstudios.discordlib;
 
+import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.data.MemberData;
+import com.runningmanstudios.discordlib.data.NoUserInDataBaseException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Util {
+
+    public static int getUserCoins(String guildId, String userId) {
+        int result = 0;
+        try (Connection connection = DataBase.createConnection()) {
+            String code = "USE DankGamer; SELECT coins FROM Users WHERE userid = ? AND guildid = ?;";
+
+            PreparedStatement statement = connection.prepareStatement(code);
+            statement.setString(1, userId);
+            statement.setString(2, guildId);
+            ResultSet resultSet = statement.executeQuery();
+            boolean next = resultSet.next();
+            if (next)
+                result = resultSet.getInt(1);
+            else
+                throw new NoUserInDataBaseException(guildId, userId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static void setUserCoins(String guildId, String userId, int newValue) {
+        String code = """
+                        USE DankGamer;
+                        UPDATE Users SET coins = ? WHERE userid = ? AND guildid = ?;""";
+        try (Connection connection = DataBase.createConnection();
+             PreparedStatement statement = connection.prepareStatement(code)) {
+            statement.setInt(1, newValue);
+            statement.setString(2, userId);
+            statement.setString(3, guildId);
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0)
+                throw new NoUserInDataBaseException(guildId, guildId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static String arrayToString(Object[] array) {
         StringBuilder sb = new StringBuilder();
 

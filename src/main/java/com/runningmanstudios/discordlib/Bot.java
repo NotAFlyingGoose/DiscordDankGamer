@@ -8,8 +8,6 @@ import com.runningmanstudios.discordlib.data.MemberData;
 import com.runningmanstudios.discordlib.event.CommandManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.User;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -24,9 +22,14 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class Bot {
-    private final File dataLocation;
+    public static final int COMMON = 1;
+    public static final int UNCOMMON = 2;
+    public static final int RARE = 3;
+    public static final int EPIC = 4;
+    public static final int LEGENDARY = 5;
     private final File traceback;
-    private CommandManager commandManager;
+    private File dataLocation;
+    public final CommandManager commandManager;
     public JSONObject items;
     public JSONObject data;
     public JSONObject settings;
@@ -38,7 +41,7 @@ public class Bot {
         this.dataLocation = location;
         location.mkdirs();
 
-        traceback = new File(location.getAbsolutePath() + File.separator + "traceback.txt");
+        this.traceback = new File(location.getAbsolutePath() + File.separator + "traceback.txt");
         try {
             traceback.delete();
             traceback.createNewFile();
@@ -61,15 +64,13 @@ public class Bot {
         data = findJSON("data.json");
         try {
             jda = JDABuilder.createDefault(token).build();
-
-            commandManager = new CommandManager(this);
-            jda.addEventListener(commandManager);
-
         } catch (LoginException e) {
             System.err.println("There was an error when attempting to sign in:");
             e.printStackTrace();
             System.exit(1);
         }
+        commandManager = new CommandManager(this);
+        jda.addEventListener(commandManager);
     }
 
     public Object getSettingsObject(String token) {
@@ -122,19 +123,7 @@ public class Bot {
         Inventory inv = new Inventory(this, member.inventory).give(item, amount);
         member = member.withInventory(inv.toDataString());
 
-        String code = """
-                        USE DankGamer;
-                        UPDATE Users SET inventory = ? WHERE userid = ? AND guildid = ?;""";
-        try (Connection connection = DataBase.createConnection();
-            PreparedStatement statement = connection.prepareStatement(code)) {
-            statement.setString(1, member.inventory);
-            statement.setString(2, member.userId);
-            statement.setString(3, member.guildId);
-            System.out.println(inv.toDataString());
-            System.out.println(statement.executeUpdate());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        DataBase.updateMemberData(member);
         System.out.println(DataBase.getMemberData(member.guildId, member.userId).inventory);
     }
 

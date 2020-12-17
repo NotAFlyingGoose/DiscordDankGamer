@@ -2,7 +2,7 @@ package com.runningmanstudios.dankgamer.game.fishing;
 
 import com.runningmanstudios.dankgamer.game.GameCommand;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 
 @CommandBuilder(name = "fish", description = "fishing game", usages = {"", "remove"})
 public class FishCommand extends GameCommand<FishingGame> {
@@ -11,7 +11,7 @@ public class FishCommand extends GameCommand<FishingGame> {
     }
 
     @Override
-    public FishingGame createNewGame(CommandEvent event) {
+    public FishingGame createNewGame(BotMessageEvent event) {
         return new FishingGame(event.getGuild(), event.getAuthor(), event);
     }
 

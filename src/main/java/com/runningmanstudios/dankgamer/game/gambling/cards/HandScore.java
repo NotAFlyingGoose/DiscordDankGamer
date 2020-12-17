@@ -1,4 +1,4 @@
-package com.runningmanstudios.dankgamer.game.gambling;
+package com.runningmanstudios.dankgamer.game.gambling.cards;
 
 public enum HandScore {
     NOPAIRS(0),

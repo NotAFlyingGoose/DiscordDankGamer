@@ -1,4 +1,4 @@
-package com.runningmanstudios.dankgamer.game.gambling;
+package com.runningmanstudios.dankgamer.game.gambling.cards;
 
 public class Card {
     public static final int JOKER = 0;
@@ -42,7 +42,7 @@ public class Card {
             case 9 -> "9️⃣";
             case 10 -> "\uD83D\uDD1F";
             case ACE -> "\uD83C\uDDE6";
-            case JACK -> "⚜️";
+            case JACK -> "\uD83C\uDDEF";
             case QUEEN -> "\uD83D\uDC51\uD83D\uDC69";
             case KING -> "\uD83D\uDC51\uD83D\uDC68";
             default -> null;
@@ -52,7 +52,11 @@ public class Card {
     public String toEmojiString() {
         if (suit == Suit.WILD) return "\uD83C\uDCCF";
 
-        return getIcon() + " of " + suit.getIcon();
+        return getIcon() + suit.getIcon();
+    }
+
+    public String toServerEmojiString() {
+        return ":" + toCardString().toLowerCase().replace(" ", "_") + ":";
     }
 
     public String toCardString() {

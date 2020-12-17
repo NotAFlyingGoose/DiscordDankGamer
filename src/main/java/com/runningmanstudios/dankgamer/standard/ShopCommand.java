@@ -3,7 +3,7 @@ package com.runningmanstudios.dankgamer.standard;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
 import com.runningmanstudios.discordlib.data.Item;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.simple.JSONObject;
 
@@ -12,7 +12,7 @@ import java.awt.*;
 @CommandBuilder(name = "shop", description = "shop for buying items")
 public class ShopCommand implements Command {
     @Override
-    public void onMessage(CommandEvent event) {
+    public void onMessage(BotMessageEvent event) {
         try {
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle("Shopping Center")

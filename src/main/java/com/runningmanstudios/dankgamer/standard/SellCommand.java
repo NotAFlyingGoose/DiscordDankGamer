@@ -4,10 +4,9 @@ import com.runningmanstudios.discordlib.command.AttractorFactory;
 import com.runningmanstudios.discordlib.command.AttractListener;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.data.DataBase;
 import com.runningmanstudios.discordlib.data.Inventory;
 import com.runningmanstudios.discordlib.data.MemberData;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
@@ -17,7 +16,7 @@ import java.util.Map;
 public class SellCommand implements Command, AttractListener {
     Map<String, String> orders = new HashMap<>();
     @Override
-    public void onMessage(CommandEvent event) {
+    public void onMessage(BotMessageEvent event) {
         Inventory inv = new Inventory(event.getCommandManager().getBot(), event.getMemberData().inventory);
         JSONObject shop = (JSONObject) event.getCommandManager().getBot().data.get("shop");
 
@@ -41,7 +40,7 @@ public class SellCommand implements Command, AttractListener {
     }
 
     @Override
-    public void onAttract(CommandEvent event) {
+    public void onAttract(BotMessageEvent event) {
         if (event.getMessage().getContentRaw().equals("Y")) {
             JSONObject shop = (JSONObject) event.getCommandManager().getBot().data.get("shop");
             MemberData userData = event.getMemberData();

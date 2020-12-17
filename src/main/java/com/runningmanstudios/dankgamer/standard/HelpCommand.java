@@ -3,7 +3,7 @@ package com.runningmanstudios.dankgamer.standard;
 import com.runningmanstudios.discordlib.Util;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.event.CommandEvent;
+import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import com.runningmanstudios.discordlib.event.CommandManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class HelpCommand implements Command {
 
     @Override
-    public void onMessage(CommandEvent event) {
+    public void onMessage(BotMessageEvent event) {
         if (event.getArgs().length == 0) {
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle("Help Menu")

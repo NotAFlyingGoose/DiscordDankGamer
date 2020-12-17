@@ -80,7 +80,9 @@ public class DataBase {
                 statement.setInt(4, 1);
                 statement.setInt(5, 0);
                 statement.setString(6, ";");
-                statement.executeUpdate();
+                int rowsAffected = statement.executeUpdate();
+                if (rowsAffected == 0)
+                    throw new NoUserInDataBaseException(guild, user);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -125,20 +127,24 @@ public class DataBase {
 
                 statement.setString(13, member.userId);
                 statement.setString(14, member.guildId);
-                statement.executeUpdate();
+                int rowsAffected = statement.executeUpdate();
+                if (rowsAffected == 0)
+                    throw new NoUserInDataBaseException(member.guildId, member.userId);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public static void deleteMemberData(int guild, int user) {
+    public static void deleteMemberData(String guild, String user) {
         try (Connection connection = createConnection()) {
             String code = "USE DankGamer; DELETE FROM Users WHERE userid = ? AND guildid = ?;";
             try (PreparedStatement statement = connection.prepareStatement(code)) {
-                statement.setInt(1, user);
-                statement.setInt(2, guild);
+                statement.setString(1, user);
+                statement.setString(2, guild);
                 int rowsAffected = statement.executeUpdate();
+                if (rowsAffected == 0)
+                    throw new NoUserInDataBaseException(guild, user);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -171,6 +177,8 @@ public class DataBase {
                     resultSet.getString(14), // game_fishing_rod
                     resultSet.getString(15) // game_fishing_location
                     );
+            else
+                throw new NoUserInDataBaseException(guild, user);
         } catch (SQLException e) {
             e.printStackTrace();
         }
