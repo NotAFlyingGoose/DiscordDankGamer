@@ -26,7 +26,7 @@ public abstract class GameCommand <T extends GameInstance> implements Command, A
         if (restartRequests.contains(event.getAuthor().getId())) {
             if (event.getMessage().getContentRaw().equals("Remove " + restartName + " (" + event.getAuthor().getId() + ")")) {
                 if (games.containsKey(event.getAuthor().getId())) {
-                    games.get(event.getAuthor().getId()).removePlayerData(event.getCommandManager().getBot());
+                    games.get(event.getAuthor().getId()).removePlayerData(event.getBot());
                     games.get(event.getAuthor().getId()).stop();
                     games.remove(event.getAuthor().getId());
                     event.reply(getGameNameNewLine() + restartName + " data removed.").queue();

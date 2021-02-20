@@ -1,8 +1,8 @@
 package com.runningmanstudios.dankgamer.game.dungeon;
 
 import com.runningmanstudios.dankgamer.game.GameInstance;
-import com.runningmanstudios.discordlib.Bot;
-import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.DiscordBot;
+import com.runningmanstudios.discordlib.data.SQLDataBase;
 import com.runningmanstudios.discordlib.data.MemberData;
 import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.entities.Guild;
@@ -28,10 +28,10 @@ public class Dungeon extends GameInstance {
 
         if (userData.game_dungeon_mode == MODE_TO_RESET || userData.game_dungeon_monster_id == null) {
             userData = userData.withDungeon(-2, 1, 2, "", 0);
-            DataBase.updateMemberData(userData);
+            SQLDataBase.updateMemberData(userData);
         } else {
             userData = userData.withDungeon(1, userData.game_dungeon_rank, userData.game_dungeon_magic, userData.game_dungeon_monster_id, userData.game_dungeon_monster_rank);
-            DataBase.updateMemberData(userData);
+            SQLDataBase.updateMemberData(userData);
 
             String menu = """
             ```md
@@ -60,7 +60,7 @@ public class Dungeon extends GameInstance {
     public void onResponse(BotMessageEvent event) {
         nextPatterns.clear();
         MemberData userData = event.getMemberData();
-        JSONObject monsters = (JSONObject) event.getCommandManager().getBot().data.get("monsters");
+        JSONObject monsters = (JSONObject) event.getBot().data.get("monsters");
         int mode = userData.game_dungeon_mode;
         int rank = userData.game_dungeon_rank;
         float magic = userData.game_dungeon_magic;
@@ -181,37 +181,37 @@ public class Dungeon extends GameInstance {
                 String menu;
                 if (wtd==0) {
                     int coins = roll.nextInt((int) ((monster_rank+1) * 11));
-                    menu = createTreasureMenu(player, coins, new String[]{}, event.getCommandManager().getBot(), "you won "+coins+" coins", new String[]{"Go To Next Room"});
+                    menu = createTreasureMenu(player, coins, new String[]{}, event.getBot(), "you won "+coins+" coins", new String[]{"Go To Next Room"});
                 } else if (wtd==1) {
                     int itemAmt = roll.nextInt((int) Math.max(1, Math.floor(monster_rank/2)));
                     List<String> items = new LinkedList<>();
-                    JSONArray treasures = (JSONArray) ((JSONObject) event.getCommandManager().getBot().data.get("treasure")).get("dungeon");
+                    JSONArray treasures = (JSONArray) ((JSONObject) event.getBot().data.get("treasure")).get("dungeon");
                     for (int i = 0; i < itemAmt; i++) {
-                        items.add(event.getCommandManager().getBot().getItemsByRarity(treasures, 2));
+                        items.add(event.getBot().getItemsByRarity(treasures, 2));
                     }
                     String[] TreasureItems = new String[items.size()];
                     for (int i = 0; i < items.size(); i++) {
-                        event.getCommandManager().getBot().giveUserItem(DataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId()), items.get(i), 1);
+                        event.getBot().giveUserItem(SQLDataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId()), items.get(i), 1);
                         TreasureItems[i] = items.get(i);
                     }
-                    menu = createTreasureMenu(player, 0, TreasureItems, event.getCommandManager().getBot(), "you won "+TreasureItems.length+" items", new String[]{"Go To Next Room"});
+                    menu = createTreasureMenu(player, 0, TreasureItems, event.getBot(), "you won "+TreasureItems.length+" items", new String[]{"Go To Next Room"});
                 } else {
                     int coins = roll.nextInt((int) ((monster_rank+1) * 5));
                     int itemAmt = roll.nextInt((int) Math.max(2, Math.floor(monster_rank/4)));
                     List<String> items = new LinkedList<>();
-                    JSONArray treasures = (JSONArray) ((JSONObject) event.getCommandManager().getBot().data.get("treasure")).get("dungeon");
+                    JSONArray treasures = (JSONArray) ((JSONObject) event.getBot().data.get("treasure")).get("dungeon");
                     for (int i = 0; i < itemAmt; i++) {
-                        items.add(event.getCommandManager().getBot().getItemsByRarity(treasures, 5));
+                        items.add(event.getBot().getItemsByRarity(treasures, 5));
                     }
                     System.out.println(coins);
                     System.out.println(itemAmt);
                     System.out.println(items);
                     String[] TreasureItems = new String[items.size()];
                     for (int i = 0; i < items.size(); i++) {
-                        event.getCommandManager().getBot().giveUserItem(DataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId()), items.get(i), 1);
+                        event.getBot().giveUserItem(SQLDataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId()), items.get(i), 1);
                         TreasureItems[i] = items.get(i);
                     }
-                    menu = createTreasureMenu(player, coins, TreasureItems, event.getCommandManager().getBot(), "you won "+coins+" coins and "+TreasureItems.length+" items", new String[]{"Go To Next Room"});
+                    menu = createTreasureMenu(player, coins, TreasureItems, event.getBot(), "you won "+coins+" coins and "+TreasureItems.length+" items", new String[]{"Go To Next Room"});
                 }
                 event.getChannel().sendMessage(getFullGameNameNewLine() + menu).queue(message -> lastShown = message);
                 monster_id = "";
@@ -223,12 +223,12 @@ public class Dungeon extends GameInstance {
         }
 
         userData = userData.withDungeon(mode, rank, magic, monster_id, monster_rank);
-        DataBase.updateMemberData(userData);
+        SQLDataBase.updateMemberData(userData);
     }
 
     @Override
-    public void removePlayerData(Bot bot) {
-        DataBase.updateMemberData(DataBase.getMemberData(guild.getId(), player.getId()).withDungeon(MODE_TO_RESET, 0, 0, "", 0));
+    public void removePlayerData(DiscordBot bot) {
+        SQLDataBase.updateMemberData(SQLDataBase.getMemberData(guild.getId(), player.getId()).withDungeon(MODE_TO_RESET, 0, 0, "", 0));
     }
 
     public String getSays(String name, String says) {
@@ -254,7 +254,7 @@ public class Dungeon extends GameInstance {
         return str.toString();
     }
 
-    private String createTreasureMenu(DungeonFighter player, int coins, String[] items, Bot bot, String message, String[] options) {
+    private String createTreasureMenu(DungeonFighter player, int coins, String[] items, DiscordBot bot, String message, String[] options) {
         StringBuilder str = new StringBuilder("```md\n" +
                 "> -----TREASURE-----\n" +
                 "< COINS WON: >/* " + coins + " *\n" +

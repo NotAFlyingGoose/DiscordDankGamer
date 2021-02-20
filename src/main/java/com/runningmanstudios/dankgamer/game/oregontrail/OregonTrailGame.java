@@ -1,7 +1,7 @@
 package com.runningmanstudios.dankgamer.game.oregontrail;
 
 import com.runningmanstudios.dankgamer.game.GameInstance;
-import com.runningmanstudios.discordlib.Bot;
+import com.runningmanstudios.discordlib.DiscordBot;
 import com.runningmanstudios.discordlib.Util;
 import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.JDA;
@@ -38,7 +38,7 @@ public class OregonTrailGame extends GameInstance {
             game.put("mode", 0);
             userData.put(dataName, game);
 
-            event.getCommandManager().getBot().users.writeContent();
+            event.getBot().users.writeContent();
         } else {
             JSONObject previousGame = (JSONObject) userData.get(dataName);
             if (((Number) previousGame.get("mode")).intValue() >= 100 || ((Number) previousGame.get("mode")).intValue() < -2) { // restart setup.
@@ -47,12 +47,12 @@ public class OregonTrailGame extends GameInstance {
                 previousGame.put("mode", 0);
                 userData.put("fishing", previousGame);
 
-                event.getCommandManager().getBot().users.writeContent();
+                event.getBot().users.writeContent();
             } else { // continue game setup
                 previousGame.put("mode", 0);
                 userData.put("fishing", previousGame);
 
-                event.getCommandManager().getBot().users.writeContent();
+                event.getBot().users.writeContent();
                 String menu = """
                         ```md
                         # type `continue` to continue your game...
@@ -60,7 +60,7 @@ public class OregonTrailGame extends GameInstance {
                         """;
                 event.getChannel().sendMessage(getFullGameNameNewLine() + menu).queue(message -> lastShown = message);
 
-                event.getCommandManager().getBot().users.writeContent();
+                event.getBot().users.writeContent();
                 return;
             }
         }*/
@@ -85,7 +85,7 @@ public class OregonTrailGame extends GameInstance {
     }
 
     @Override
-    public void removePlayerData(Bot bot) {
+    public void removePlayerData(DiscordBot bot) {
 
     }
 

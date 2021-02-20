@@ -17,10 +17,10 @@ public class ShopCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle("Shopping Center")
                     .setColor(new Color(255, 0, 0))
-                    .setFooter("buy an item with `" + event.getCommandManager().getBot().getPrefix() + "buy <item id>`");
-            JSONObject shop = (JSONObject) event.getCommandManager().getBot().data.get("shop");
+                    .setFooter("buy an item with `" + event.getBot().getPrefix() + "buy <item id>`");
+            JSONObject shop = (JSONObject) event.getBot().data.get("shop");
             for (Object field : shop.keySet()) {
-                Item item = event.getCommandManager().getBot().getItem(field.toString());
+                Item item = event.getBot().getItem(field.toString());
                 embed.addField(
                         item.getName(),
                         "**- Icon:** " + item.getIcon() + " \n" +

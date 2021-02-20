@@ -2,7 +2,7 @@ package com.runningmanstudios.discordlib.data;
 
 import java.sql.*;
 
-public class DataBase {
+public class SQLDataBase {
     public static String username;
     public static String password;
     public static String ipAddress;
@@ -76,10 +76,10 @@ public class DataBase {
             try (PreparedStatement statement = connection.prepareStatement(code)) {
                 statement.setString(1, user);
                 statement.setString(2, guild);
-                statement.setInt(3, 0);
-                statement.setInt(4, 1);
-                statement.setInt(5, 0);
-                statement.setString(6, ";");
+                statement.setInt(3, MemberData.DEFAULT_COINS);
+                statement.setInt(4, MemberData.DEFAULT_LEVEL);
+                statement.setFloat(5, MemberData.DEFAULT_XP);
+                statement.setString(6, MemberData.DEFAULT_INVENTORY);
                 int rowsAffected = statement.executeUpdate();
                 if (rowsAffected == 0)
                     throw new NoUserInDataBaseException(guild, user);
@@ -190,14 +190,14 @@ public class DataBase {
     }
 
     public static void setUsername(String username) {
-        DataBase.username = username;
+        SQLDataBase.username = username;
     }
 
     public static void setPassword(String password) {
-        DataBase.password = password;
+        SQLDataBase.password = password;
     }
 
     public static void setIP(String ipAddress) {
-        DataBase.ipAddress = ipAddress;
+        SQLDataBase.ipAddress = ipAddress;
     }
 }

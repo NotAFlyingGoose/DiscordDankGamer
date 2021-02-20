@@ -19,9 +19,9 @@ public class InvCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle(command.getAuthor().getName())
                     .setColor(new Color(255, 0, 0));
-            JSONObject shop = (JSONObject) command.getCommandManager().getBot().data.get("shop");
+            JSONObject shop = (JSONObject) command.getBot().data.get("shop");
             MemberData userData = command.getMemberData();
-            Inventory inv = new Inventory(command.getCommandManager().getBot(), userData.inventory);
+            Inventory inv = new Inventory(command.getBot(), userData.inventory);
 
             if (inv.getItems().isEmpty()) {
                 embed.setDescription("Your inventory is empty :frowning2:");

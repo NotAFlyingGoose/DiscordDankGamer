@@ -1,6 +1,6 @@
 package com.runningmanstudios.discordlib.data;
 
-import com.runningmanstudios.discordlib.Bot;
+import com.runningmanstudios.discordlib.DiscordBot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +10,7 @@ import java.util.List;
 public class Inventory {
     HashMap<Item, Integer> items = new HashMap<>();
 
-    public Inventory(Bot bot, String data) {
+    public Inventory(DiscordBot bot, String data) {
         if (data == null || data.isEmpty() || data.equals(";")) return;
 
         List<String> items = new ArrayList<>(Arrays.asList(data.split(";", 0)));

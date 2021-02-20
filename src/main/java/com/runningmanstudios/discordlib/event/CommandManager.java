@@ -1,11 +1,11 @@
 package com.runningmanstudios.discordlib.event;
 
-import com.runningmanstudios.discordlib.Bot;
+import com.runningmanstudios.discordlib.DiscordBot;
 import com.runningmanstudios.discordlib.Util;
 import com.runningmanstudios.discordlib.command.Attractor;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.data.SQLDataBase;
 import com.runningmanstudios.discordlib.data.MemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -31,9 +31,9 @@ public class CommandManager extends ListenerAdapter {
 
     final String prefix;
     List<Command> commandList = new ArrayList<>();
-    Bot bot;
+    DiscordBot bot;
 
-    public CommandManager(Bot bot) {
+    public CommandManager(DiscordBot bot) {
         this.bot = bot;
         this.prefix = bot.getPrefix();
     }
@@ -81,10 +81,10 @@ public class CommandManager extends ListenerAdapter {
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
         if (event.getMember().getUser().isBot()) return;
 
-        MemberData userData = DataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId());
+        MemberData userData = SQLDataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId());
         if (userData == null) {
-            DataBase.addMemberData(event.getGuild().getId(), event.getAuthor().getId());
-            userData = DataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId());
+            SQLDataBase.addMemberData(event.getGuild().getId(), event.getAuthor().getId());
+            userData = SQLDataBase.getMemberData(event.getGuild().getId(), event.getAuthor().getId());
         }
 
         Attractor attractor = attractors.get(event.getAuthor().getId());
@@ -141,7 +141,7 @@ public class CommandManager extends ListenerAdapter {
             dungeon.replace("magic", Float.valueOf(df.format(curMagic + magicAdd)));
         }*/
 
-        DataBase.updateMemberData(userData);
+        SQLDataBase.updateMemberData(userData);
 
         String messageContent = event.getMessage().getContentRaw();
         if (messageContent.length() < prefix.length() || !messageContent.substring(0, prefix.length()).equalsIgnoreCase(prefix)) return;
@@ -177,7 +177,7 @@ public class CommandManager extends ListenerAdapter {
         return commandList;
     }
 
-    public Bot getBot() {
+    public DiscordBot getBot() {
         return bot;
     }
 

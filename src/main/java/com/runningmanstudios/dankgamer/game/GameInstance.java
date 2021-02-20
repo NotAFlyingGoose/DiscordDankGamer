@@ -1,6 +1,6 @@
 package com.runningmanstudios.dankgamer.game;
 
-import com.runningmanstudios.discordlib.Bot;
+import com.runningmanstudios.discordlib.DiscordBot;
 import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -59,5 +59,5 @@ public abstract class GameInstance {
         return lastShown;
     }
 
-    public abstract void removePlayerData(Bot bot);
+    public abstract void removePlayerData(DiscordBot bot);
 }

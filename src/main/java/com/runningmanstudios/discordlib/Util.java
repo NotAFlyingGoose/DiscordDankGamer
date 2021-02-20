@@ -1,11 +1,9 @@
 package com.runningmanstudios.discordlib;
 
-import com.runningmanstudios.discordlib.data.DataBase;
-import com.runningmanstudios.discordlib.data.MemberData;
+import com.runningmanstudios.discordlib.data.SQLDataBase;
 import com.runningmanstudios.discordlib.data.NoUserInDataBaseException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import java.awt.*;
 import java.sql.Connection;
@@ -17,7 +15,7 @@ public class Util {
 
     public static int getUserCoins(String guildId, String userId) {
         int result = 0;
-        try (Connection connection = DataBase.createConnection()) {
+        try (Connection connection = SQLDataBase.createConnection()) {
             String code = "USE DankGamer; SELECT coins FROM Users WHERE userid = ? AND guildid = ?;";
 
             PreparedStatement statement = connection.prepareStatement(code);
@@ -39,7 +37,7 @@ public class Util {
         String code = """
                         USE DankGamer;
                         UPDATE Users SET coins = ? WHERE userid = ? AND guildid = ?;""";
-        try (Connection connection = DataBase.createConnection();
+        try (Connection connection = SQLDataBase.createConnection();
              PreparedStatement statement = connection.prepareStatement(code)) {
             statement.setInt(1, newValue);
             statement.setString(2, userId);

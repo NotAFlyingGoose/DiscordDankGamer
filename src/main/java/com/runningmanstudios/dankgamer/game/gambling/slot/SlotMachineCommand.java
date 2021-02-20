@@ -1,11 +1,8 @@
 package com.runningmanstudios.dankgamer.game.gambling.slot;
 
-import com.runningmanstudios.dankgamer.game.gambling.blackjack.BJCommand;
 import com.runningmanstudios.discordlib.Util;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.data.DataBase;
-import com.runningmanstudios.discordlib.data.MemberData;
 import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 

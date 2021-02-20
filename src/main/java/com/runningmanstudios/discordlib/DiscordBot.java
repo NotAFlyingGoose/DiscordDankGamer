@@ -1,7 +1,7 @@
 package com.runningmanstudios.discordlib;
 
 import com.runningmanstudios.discordlib.command.Command;
-import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.data.SQLDataBase;
 import com.runningmanstudios.discordlib.data.Inventory;
 import com.runningmanstudios.discordlib.data.Item;
 import com.runningmanstudios.discordlib.data.MemberData;
@@ -21,14 +21,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 
-public class Bot {
-    public static final int COMMON = 1;
-    public static final int UNCOMMON = 2;
-    public static final int RARE = 3;
-    public static final int EPIC = 4;
-    public static final int LEGENDARY = 5;
+public class DiscordBot {
+    private static final String baseLocation = System.getProperty("user.home");
     private final File traceback;
-    private File dataLocation;
+    private final File dataLocation;
     public final CommandManager commandManager;
     public JSONObject items;
     public JSONObject data;
@@ -36,8 +32,8 @@ public class Bot {
     public JDA jda;
     private final String prefix;
 
-    public Bot(String dataLocation) {
-        File location = new File(System.getProperty("user.home") + dataLocation);
+    public DiscordBot(String dataLocation) {
+        File location = new File(baseLocation + dataLocation);
         this.dataLocation = location;
         location.mkdirs();
 
@@ -51,14 +47,15 @@ public class Bot {
 
         this.settings = findJSON("Settings.json");
 
-        DataBase.setIP(getSettingsString("sql_ip"));
-        DataBase.setUsername(getSettingsString("sql_username"));
-        DataBase.setPassword(getSettingsString("sql_password"));
+        SQLDataBase.setIP(getSettingsString("sql_ip"));
+        SQLDataBase.setUsername(getSettingsString("sql_username"));
+        SQLDataBase.setPassword(getSettingsString("sql_password"));
 
         String token = getSettingsString("token");
         this.prefix = getSettingsString("prefix");
 
-        DataBase.init();
+        SQLDataBase.init();
+        Util.setUserCoins("714930958561968168", "536248477324410881", 1000);
 
         items = findJSON("items.json");
         data = findJSON("data.json");
@@ -123,8 +120,8 @@ public class Bot {
         Inventory inv = new Inventory(this, member.inventory).give(item, amount);
         member = member.withInventory(inv.toDataString());
 
-        DataBase.updateMemberData(member);
-        System.out.println(DataBase.getMemberData(member.guildId, member.userId).inventory);
+        SQLDataBase.updateMemberData(member);
+        System.out.println(SQLDataBase.getMemberData(member.guildId, member.userId).inventory);
     }
 
     public void takeUserItem(MemberData member, String itemId, int amount) {
@@ -136,7 +133,7 @@ public class Bot {
                         UPDATE Users 
                         SET inventory = ?
                         WHERE userid = ? AND guildid = ?""";
-        try (Connection connection = DataBase.createConnection();
+        try (Connection connection = SQLDataBase.createConnection();
              PreparedStatement statement = connection.prepareStatement(code)) {
             statement.setString(1, member.inventory);
 

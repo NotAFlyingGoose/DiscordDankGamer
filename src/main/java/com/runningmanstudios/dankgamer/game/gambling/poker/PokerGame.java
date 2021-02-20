@@ -3,7 +3,7 @@ package com.runningmanstudios.dankgamer.game.gambling.poker;
 import com.runningmanstudios.dankgamer.game.gambling.cards.Card;
 import com.runningmanstudios.dankgamer.game.gambling.cards.Deck;
 import com.runningmanstudios.dankgamer.game.gambling.cards.Hand;
-import com.runningmanstudios.discordlib.Bot;
+import com.runningmanstudios.discordlib.DiscordBot;
 import com.runningmanstudios.discordlib.command.AttractListener;
 import com.runningmanstudios.discordlib.command.AttractorFactory;
 import com.runningmanstudios.discordlib.event.BotMessageEvent;
@@ -32,7 +32,7 @@ public class PokerGame implements AttractListener {
     public void onPlayerResponse(BotMessageEvent event) {
         System.out.println(event.getMessage().getContentRaw());
         if (inLobby) {
-            sendLobbyTo(event.getCommandManager().getBot(), event.getAuthor());
+            sendLobbyTo(event.getBot(), event.getAuthor());
             if (event.getAuthor().getId().equals(host.getId()) && event.getMessage().getContentRaw().equalsIgnoreCase("start")) {
                 if (players.size() < 2) {
                     event.reply("You must have more players!").queue();
@@ -50,7 +50,7 @@ public class PokerGame implements AttractListener {
                     .setFooter(event.getAuthor().getAsTag());
 
             Deck deck = Deck.createStandardDeck().shuffle();
-            Hand hand = new Hand(deck, 5).collect();
+            Hand hand = new Hand(deck, 5).collectAll();
 
             for (Card card : hand.getCards()) {
                 menu.addField(card.toEmojiString(), "This card is a " + card.toCardString(), true);
@@ -101,7 +101,7 @@ public class PokerGame implements AttractListener {
         return id;
     }
 
-    public boolean requestJoin(Bot bot, User user, TextChannel channel) {
+    public boolean requestJoin(DiscordBot bot, User user, TextChannel channel) {
         if (this.players.size() == maxPlayers) return false;
         this.players.put(user, channel);
 
@@ -120,7 +120,7 @@ public class PokerGame implements AttractListener {
         return true;
     }
 
-    public void sendLobbyTo(Bot bot, User user) {
+    public void sendLobbyTo(DiscordBot bot, User user) {
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle(host.getAsTag() + "'s Poker Game")
                 .setDescription(createLobbyScreen());

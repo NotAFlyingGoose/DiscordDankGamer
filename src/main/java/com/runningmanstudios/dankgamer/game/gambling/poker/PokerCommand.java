@@ -44,7 +44,7 @@ public class PokerCommand implements Command, AttractListener {
 
             if (event.getMessage().getContentRaw().equals("Y")) {
                 PokerGame game = new PokerGame(event.getAuthor(), generateUniqueId());
-                game.requestJoin(event.getCommandManager().getBot(), event.getAuthor(), event.getChannel());
+                game.requestJoin(event.getBot(), event.getAuthor(), event.getChannel());
                 games.add(game);
                 event.reply("You are now hosting game #" + game.getId()).queue();
                 hostRequests.remove(event.getAuthor().getId());
@@ -79,7 +79,7 @@ public class PokerCommand implements Command, AttractListener {
                 int requestedId = Integer.parseInt(event.getArg(1));
                 for (PokerGame game : games) {
                     if (game.getId() == requestedId) {
-                        if (!game.requestJoin(event.getCommandManager().getBot(), event.getAuthor(), event.getChannel())) {
+                        if (!game.requestJoin(event.getBot(), event.getAuthor(), event.getChannel())) {
                             event.getChannel().sendMessage(event.getAuthor().getAsMention() + " was not accepted into the game").queue();
                         } else {
                             event.getChannel().sendMessage(event.getAuthor().getAsMention() + " was accepted into the game").queue();

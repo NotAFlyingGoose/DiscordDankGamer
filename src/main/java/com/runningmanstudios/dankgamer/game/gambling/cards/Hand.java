@@ -24,18 +24,29 @@ public class Hand {
         return cards;
     }
 
-    public Hand collect() {
-        if (!cards.isEmpty()) place();
+    public Hand collectAll() {
+        if (!cards.isEmpty()) placeAll();
 
         for (int i = 0; i < max; i++)
             cards.add(i, deck.takeCard());
         return this;
     }
 
-    public Hand place() {
+    public Hand placeAll() {
         for (Card c : cards)
             deck.putCard(c);
         cards.clear();
+        return this;
+    }
+
+    public Hand collectCard() {
+        cards.add(deck.takeCard());
+        return this;
+    }
+
+    public Hand placeCard() {
+        deck.putCard(cards.get(cards.size() - 1));
+        cards.remove(cards.size() - 1);
         return this;
     }
 

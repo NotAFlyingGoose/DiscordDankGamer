@@ -5,8 +5,6 @@ import com.runningmanstudios.discordlib.command.AttractListener;
 import com.runningmanstudios.discordlib.command.AttractorFactory;
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.data.DataBase;
-import com.runningmanstudios.discordlib.data.MemberData;
 import com.runningmanstudios.discordlib.event.BotMessageEvent;
 
 import java.util.HashMap;

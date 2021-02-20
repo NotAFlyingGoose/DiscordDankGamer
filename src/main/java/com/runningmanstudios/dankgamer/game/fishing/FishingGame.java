@@ -1,9 +1,9 @@
 package com.runningmanstudios.dankgamer.game.fishing;
 
 import com.runningmanstudios.dankgamer.game.GameInstance;
-import com.runningmanstudios.discordlib.Bot;
+import com.runningmanstudios.discordlib.DiscordBot;
 import com.runningmanstudios.discordlib.Util;
-import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.data.SQLDataBase;
 import com.runningmanstudios.discordlib.data.Inventory;
 import com.runningmanstudios.discordlib.data.Item;
 import com.runningmanstudios.discordlib.data.MemberData;
@@ -45,16 +45,16 @@ public class FishingGame extends GameInstance {
         start();
         MemberData userData = event.getMemberData();
 
-        Inventory inv = new Inventory(event.getCommandManager().getBot(), userData.inventory);
+        Inventory inv = new Inventory(event.getBot(), userData.inventory);
         if (!inv.hasItem("fishing_rod_basic"))
-            event.getCommandManager().getBot().giveUserItem(userData, "fishing_rod_basic", 1);
+            event.getBot().giveUserItem(userData, "fishing_rod_basic", 1);
 
         if (userData.game_fishing_mode == MODE_TO_RESET || userData.game_fishing_rod == null) { // restart setup.
             userData = userData.withFishing(0, "fishing_rod_basic", "fishing_locations_uncle");
-            DataBase.updateMemberData(userData);
+            SQLDataBase.updateMemberData(userData);
         } else { // continue game setup
             userData = userData.withFishing(0, userData.game_fishing_rod, userData.game_fishing_location);
-            DataBase.updateMemberData(userData);
+            SQLDataBase.updateMemberData(userData);
             String menu = """
                     ```md
                     # type `continue` to continue your game...
@@ -85,17 +85,17 @@ public class FishingGame extends GameInstance {
         AtomicInteger mode = new AtomicInteger(userData[0].game_fishing_mode);
         String fishingRod = userData[0].game_fishing_rod;
         String fishingLocation = userData[0].game_fishing_location;
-        float rodLootMultiplier = ((Number) ((JSONObject) event.getCommandManager().getBot().items.get(fishingRod)).get("luck")).floatValue();
-        float rodSpeed = ((Number) ((JSONObject) event.getCommandManager().getBot().items.get(fishingRod)).get("speed")).floatValue();
+        float rodLootMultiplier = ((Number) ((JSONObject) event.getBot().items.get(fishingRod)).get("luck")).floatValue();
+        float rodSpeed = ((Number) ((JSONObject) event.getBot().items.get(fishingRod)).get("speed")).floatValue();
 
-        JSONObject location = (JSONObject) ((JSONObject) ((JSONObject)event.getCommandManager().getBot().data.get("locations")).get("fishing")).get(fishingLocation);
+        JSONObject location = (JSONObject) ((JSONObject) ((JSONObject)event.getBot().data.get("locations")).get("fishing")).get(fishingLocation);
         float locationMultiplier = ((Number) location.get("luck")).floatValue();
 
         switch (mode.get()) {
             case -2 -> {
-                if (((JSONObject) ((JSONObject) event.getCommandManager().getBot().data.get("locations")).get("fishing")).get(event.getMessage().getContentRaw()) != null) {
+                if (((JSONObject) ((JSONObject) event.getBot().data.get("locations")).get("fishing")).get(event.getMessage().getContentRaw()) != null) {
                     fishingLocation = event.getMessage().getContentRaw();
-                    location = (JSONObject) ((JSONObject) ((JSONObject)event.getCommandManager().getBot().data.get("locations")).get("fishing")).get(fishingLocation);
+                    location = (JSONObject) ((JSONObject) ((JSONObject)event.getBot().data.get("locations")).get("fishing")).get(fishingLocation);
 
                     event.reply("Location successfully set to " + location.get("name").toString() + " - " + location.get("icon").toString() + ". Type `back` to go to menu").queue(message -> lastShown = message);
                 } else {
@@ -105,11 +105,11 @@ public class FishingGame extends GameInstance {
                 nextPatterns.add("back");
             }
             case -1 -> {
-                if (event.getCommandManager().getBot().items.get(event.getMessage().getContentRaw()) != null) {
-                    Inventory inv = new Inventory(event.getCommandManager().getBot(), userData[0].inventory);
+                if (event.getBot().items.get(event.getMessage().getContentRaw()) != null) {
+                    Inventory inv = new Inventory(event.getBot(), userData[0].inventory);
                     if (inv.hasItem(event.getMessage().getContentRaw())) {
                         fishingRod = event.getMessage().getContentRaw();
-                        event.reply("Rod successfully set to " + event.getCommandManager().getBot().getItem(fishingRod).getName() + " - \uD83C\uDFA3. Type `back` to go to menu").queue(message -> lastShown = message);
+                        event.reply("Rod successfully set to " + event.getBot().getItem(fishingRod).getName() + " - \uD83C\uDFA3. Type `back` to go to menu").queue(message -> lastShown = message);
                     } else {
                         event.reply("You do not have that item in your inventory. Type `back` to go to menu").queue(message -> lastShown = message);
                     }
@@ -125,7 +125,7 @@ public class FishingGame extends GameInstance {
                     menu.setTitle(getFullGameName());
                     menu.setDescription("Type the location id of the place you want to fish at.\nAvailable Locations:");
 
-                    JSONObject locations = (JSONObject) ((JSONObject) event.getCommandManager().getBot().data.get("locations")).get("fishing");
+                    JSONObject locations = (JSONObject) ((JSONObject) event.getBot().data.get("locations")).get("fishing");
 
                     for (Object item : locations.keySet()) {
                         JSONObject itemLocation = (JSONObject) locations.get(item);
@@ -145,8 +145,8 @@ public class FishingGame extends GameInstance {
                     menu.setTitle(getFullGameName());
                     menu.setDescription("Type the item id of the rod you want to use.\nAvailable Rods:");
 
-                    JSONObject items = event.getCommandManager().getBot().items;
-                    Inventory inv = new Inventory(event.getCommandManager().getBot(), userData[0].inventory);
+                    JSONObject items = event.getBot().items;
+                    Inventory inv = new Inventory(event.getBot(), userData[0].inventory);
 
                     for (Item item : inv.getItems().keySet()) {
                         if (!item.getName().startsWith("fishing_rod")) continue;
@@ -166,7 +166,7 @@ public class FishingGame extends GameInstance {
                 else if (event.getMessage().getContentRaw().equals("fish")) {
                     mode.set(1);
                     userData[0] = userData[0].withFishing(mode.get(), fishingRod, fishingLocation);
-                    DataBase.updateMemberData(userData[0]);
+                    SQLDataBase.updateMemberData(userData[0]);
                     onResponse(event);
                     return;
                 } else {
@@ -182,7 +182,7 @@ public class FishingGame extends GameInstance {
                             Exit 🛑 : `exit`
                             """);
                     menu.addField("Location", location.get("name").toString(), true);
-                    menu.addField("Fishing Rod", ((JSONObject) event.getCommandManager().getBot().items.get(fishingRod)).get("name").toString(), true);
+                    menu.addField("Fishing Rod", ((JSONObject) event.getBot().items.get(fishingRod)).get("name").toString(), true);
                     menu.setFooter(event.getAuthor().getAsTag());
 
                     nextPatterns.add("location");
@@ -227,7 +227,7 @@ public class FishingGame extends GameInstance {
                                     }
                                     mode.set(2);
                                     userData[0] = userData[0].withFishing(mode.get(), finalFishingRod, finalFishingLocation);
-                                    DataBase.updateMemberData(userData[0]);
+                                    SQLDataBase.updateMemberData(userData[0]);
                                 }
                             }, 5000);
                         });
@@ -244,7 +244,7 @@ public class FishingGame extends GameInstance {
                 if (event.getMessage().getContentRaw().equals("rethrow") || rodY < 1) {
                     mode.set(1);
                     userData[0] = userData[0].withFishing(mode.get(), fishingRod, fishingLocation);
-                    DataBase.updateMemberData(userData[0]);
+                    SQLDataBase.updateMemberData(userData[0]);
                     onResponse(event);
                     return;
                 }
@@ -265,14 +265,14 @@ public class FishingGame extends GameInstance {
                                                     .queue(message -> lastShown = message);
                                             mode.set(0);
                                             userData[0] = userData[0].withFishing(mode.get(), finalFishingRod, finalFishingLocation);
-                                            DataBase.updateMemberData(userData[0]);
+                                            SQLDataBase.updateMemberData(userData[0]);
                                         }
                                         if (FISHING && !fishAvailable[0]) {
                                             fishingTimer.cancel();
                                             message.editMessage(Util.createSimpleEmbed(getFullGameName(), getWorld(rodX, rodY, FishingGame.BADTHROW), event.getAuthor().getAsTag() + " | You missed the fish. Type \"continue\" to go to the menu.")).queue(msg -> lastShown = message);
                                             mode.set(0);
                                             userData[0] = userData[0].withFishing(mode.get(), finalFishingRod, finalFishingLocation);
-                                            DataBase.updateMemberData(userData[0]);
+                                            SQLDataBase.updateMemberData(userData[0]);
                                         }
                                     }
                                 };
@@ -299,13 +299,13 @@ public class FishingGame extends GameInstance {
                                                         message.editMessage(Util.createSimpleEmbed(getFullGameName(), getWorld(rodX, rodY, FishingGame.CAUGHT), event.getAuthor().getAsTag() + " | You caught a fish!. Type \"continue\" to go to collect your prize!")).queue(msg -> lastShown = message);
                                                         mode.set(3);
                                                         userData[0] = userData[0].withFishing(mode.get(), finalFishingRod, finalFishingLocation);
-                                                        DataBase.updateMemberData(userData[0]);
+                                                        SQLDataBase.updateMemberData(userData[0]);
 
                                                     } else {
                                                         message.editMessage(Util.createSimpleEmbed(getFullGameName(), getWorld(rodX, rodY, FishingGame.BADTHROW), event.getAuthor().getAsTag() + " | You missed the fish. Type \"continue\" to go to the menu.")).queue(msg -> lastShown = message);
                                                         mode.set(0);
                                                         userData[0] = userData[0].withFishing(mode.get(), finalFishingRod, finalFishingLocation);
-                                                        DataBase.updateMemberData(userData[0]);
+                                                        SQLDataBase.updateMemberData(userData[0]);
                                                     }
                                                 });
                                     }
@@ -317,10 +317,10 @@ public class FishingGame extends GameInstance {
 
             }
             case 3 -> {
-                JSONArray treasures = (JSONArray) ((JSONObject) event.getCommandManager().getBot().data.get("treasure")).get("fishing");
-                String item = (event.getCommandManager().getBot().getItemsByRarity(treasures, 3 - (rodLootMultiplier * locationMultiplier)));
-                event.getCommandManager().getBot().giveUserItem(userData[0], item, 1);
-                Item itemObj = event.getCommandManager().getBot().getItem(item);
+                JSONArray treasures = (JSONArray) ((JSONObject) event.getBot().data.get("treasure")).get("fishing");
+                String item = (event.getBot().getItemsByRarity(treasures, 3 - (rodLootMultiplier * locationMultiplier)));
+                event.getBot().giveUserItem(userData[0], item, 1);
+                Item itemObj = event.getBot().getItem(item);
                 MessageEmbed menu = Util.createSimpleEmbed("Your Prize", "You found " + itemObj.getName() + " - " + itemObj.getIcon() + ".", event.getAuthor().getAsTag() + " | Type \"continue\" to go back to the menu.");
                 event.getChannel().sendMessage(menu).queue(message -> lastShown = message);
                 nextPatterns.add("continue");
@@ -328,12 +328,12 @@ public class FishingGame extends GameInstance {
             }
         }
         userData[0] = userData[0].withFishing(mode.get(), fishingRod, fishingLocation);
-        DataBase.updateMemberData(userData[0]);
+        SQLDataBase.updateMemberData(userData[0]);
     }
 
     @Override
-    public void removePlayerData(Bot bot) {
-        DataBase.updateMemberData(DataBase.getMemberData(guild.getId(), player.getId()).withFishing(MODE_TO_RESET, "", ""));
+    public void removePlayerData(DiscordBot bot) {
+        SQLDataBase.updateMemberData(SQLDataBase.getMemberData(guild.getId(), player.getId()).withFishing(MODE_TO_RESET, "", ""));
     }
 
     public String getWorld(int rodX, int rodY, int type) {

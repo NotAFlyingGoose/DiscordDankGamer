@@ -2,7 +2,7 @@ package com.runningmanstudios.dankgamer.standard;
 
 import com.runningmanstudios.discordlib.command.Command;
 import com.runningmanstudios.discordlib.command.CommandBuilder;
-import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.data.SQLDataBase;
 import com.runningmanstudios.discordlib.data.MemberData;
 import com.runningmanstudios.discordlib.event.BotMessageEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -31,7 +31,7 @@ public class LevelCommand implements Command {
                 message.getChannel().sendMessage(embed.build()).queue();
             } else {
                 Member member = members.get(0);
-                MemberData data = DataBase.getMemberData(member.getGuild().getId(), member.getUser().getId());
+                MemberData data = SQLDataBase.getMemberData(member.getGuild().getId(), member.getUser().getId());
                 long xpToNextLvl = data.level * 175;
                 EmbedBuilder embed = new EmbedBuilder()
                         .setColor(new Color(0, 255, 0))

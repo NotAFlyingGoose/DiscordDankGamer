@@ -1,6 +1,10 @@
 package com.runningmanstudios.discordlib.data;
 
 public class MemberData {
+    public static final int DEFAULT_COINS = 0;
+    public static final int DEFAULT_LEVEL = 1;
+    public static final int DEFAULT_XP = 0;
+    public static final String DEFAULT_INVENTORY = ";";
     // STANDARD DATA
 
     public final String userId;

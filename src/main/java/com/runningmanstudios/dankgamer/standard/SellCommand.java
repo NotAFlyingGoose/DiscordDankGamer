@@ -17,12 +17,12 @@ public class SellCommand implements Command, AttractListener {
     Map<String, String> orders = new HashMap<>();
     @Override
     public void onMessage(BotMessageEvent event) {
-        Inventory inv = new Inventory(event.getCommandManager().getBot(), event.getMemberData().inventory);
-        JSONObject shop = (JSONObject) event.getCommandManager().getBot().data.get("shop");
+        Inventory inv = new Inventory(event.getBot(), event.getMemberData().inventory);
+        JSONObject shop = (JSONObject) event.getBot().data.get("shop");
 
         String item_id = event.getArg(0);
 
-        if (event.getCommandManager().getBot().getItem(item_id) == null) {
+        if (event.getBot().getItem(item_id) == null) {
             event.reply("That is not a valid item!").queue();
             return;
         }
@@ -34,7 +34,7 @@ public class SellCommand implements Command, AttractListener {
             return;
         }
 
-        event.reply("Are you sure you want to sell your `" + event.getCommandManager().getBot().getItem(item_id).getName() + " - " + event.getCommandManager().getBot().getItem(item_id).getIcon() + "`? Type `Y` to confirm, `N` to cancel").queue();
+        event.reply("Are you sure you want to sell your `" + event.getBot().getItem(item_id).getName() + " - " + event.getBot().getItem(item_id).getIcon() + "`? Type `Y` to confirm, `N` to cancel").queue();
         event.getCommandManager().setAttractor(event.getAuthor(), AttractorFactory.createAnyAttractor(this));
         orders.put(event.getAuthor().getId(), item_id);
     }
@@ -42,15 +42,15 @@ public class SellCommand implements Command, AttractListener {
     @Override
     public void onAttract(BotMessageEvent event) {
         if (event.getMessage().getContentRaw().equals("Y")) {
-            JSONObject shop = (JSONObject) event.getCommandManager().getBot().data.get("shop");
+            JSONObject shop = (JSONObject) event.getBot().data.get("shop");
             MemberData userData = event.getMemberData();
 
             String item_id = orders.get(event.getAuthor().getId());
-            String purchased = event.getCommandManager().getBot().getItem(item_id).getName() + " - " + event.getCommandManager().getBot().getItem(item_id).getIcon();
+            String purchased = event.getBot().getItem(item_id).getName() + " - " + event.getBot().getItem(item_id).getIcon();
             int itemCost = Integer.parseInt(shop.get(item_id).toString());
 
             userData = userData.withCoins((int) (userData.coins + (itemCost * 0.75)));
-            event.getCommandManager().getBot().giveUserItem(userData, item_id, 1);
+            event.getBot().giveUserItem(userData, item_id, 1);
 
             InvoiceBuilder.createInvoice(event, purchased, itemCost).queue();
 

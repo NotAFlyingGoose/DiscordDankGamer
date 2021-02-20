@@ -1,12 +1,11 @@
 package com.runningmanstudios.discordlib.event;
 
-import com.runningmanstudios.discordlib.data.DataBase;
+import com.runningmanstudios.discordlib.DiscordBot;
+import com.runningmanstudios.discordlib.data.SQLDataBase;
 import com.runningmanstudios.discordlib.data.MemberData;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.json.simple.JSONObject;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -60,10 +59,14 @@ public class BotMessageEvent extends GuildMessageReceivedEvent {
     }
 
     public MemberData getMemberData() {
-        return DataBase.getMemberData(getGuild().getId(), getAuthor().getId());
+        return SQLDataBase.getMemberData(getGuild().getId(), getAuthor().getId());
     }
 
     public CommandManager getCommandManager() {
         return commandManager;
+    }
+
+    public DiscordBot getBot() {
+        return commandManager.getBot();
     }
 }
